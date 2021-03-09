@@ -12,10 +12,11 @@
 
 package org.openx.data.jsonserde.objectinspector.primitive;
 
-import java.sql.Timestamp;
 import org.apache.hadoop.hive.serde2.io.TimestampWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.AbstractPrimitiveJavaObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.SettableTimestampObjectInspector;
+
+import java.sql.Timestamp;
 
 /**
  * A timestamp that is stored in a String

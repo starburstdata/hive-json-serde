@@ -7,12 +7,12 @@
     <packaging>pom</packaging>
 
     <name>openx-json-serde</name>
-    <url>https://github.com/rcongiu/Hive-JSON-Serde</url>
+    <url>https://github.com/starburstdata/Hive-JSON-Serde</url>
     <scm>
         <!-- Replace the connection below with your project connection -->
-        <connection>scm:git:git@github.com:rcongiu/Hive-JSON-Serde.git</connection>
-        <developerConnection>scm:git:git@github.com:rcongiu/Hive-JSON-Serde.git</developerConnection>
-        <url>scm:git:git@github.com:rcongiu/Hive-JSON-Serde.git</url>
+        <connection>scm:git:git@github.com:starburstdata/Hive-JSON-Serde.git</connection>
+        <developerConnection>scm:git:git@github.com:starburstdata/Hive-JSON-Serde.git</developerConnection>
+        <url>scm:git:git@github.com:starburstdata/Hive-JSON-Serde.git</url>
 
         <tag>HEAD</tag>
     </scm>
@@ -27,6 +27,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
+        <!-- openjson version -->
+        <openjson.version>1.0.12</openjson.version>
         <!-- cdh4 versions -->
         <cdh4.version>4.7.1</cdh4.version>
         <cdh4.hive.version>0.10.0-cdh${cdh4.version}</cdh4.hive.version>
@@ -243,13 +245,6 @@
 
         </plugins>
     </build>
-
-    <distributionManagement>
-        <repository>
-            <id>ssh-repository</id>
-            <url>scpexe://www.congiu.net:/home/rcongiu/congiu.net/hive-json-serde</url>
-        </repository>
-    </distributionManagement>
 </project>
 
 

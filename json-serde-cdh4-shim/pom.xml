@@ -25,12 +25,12 @@
   </build>
 
     <dependencies>
-	 <dependency>
-                <groupId>org.openx.data</groupId>
-                <artifactId>json</artifactId>
-                <version>${project.version}</version>
-                <scope>compile</scope>
-        </dependency>
+		<dependency>
+			<groupId>com.starburstdata.openjson</groupId>
+			<artifactId>openjson</artifactId>
+			<version>${openjson.version}</version>
+			<scope>compile</scope>
+		</dependency>
 
 	<dependency>
 	    <groupId>org.apache.hive</groupId>

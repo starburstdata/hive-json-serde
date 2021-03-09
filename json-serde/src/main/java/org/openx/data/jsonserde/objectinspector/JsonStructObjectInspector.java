@@ -11,15 +11,16 @@
  *======================================================================*/
 package org.openx.data.jsonserde.objectinspector;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import com.starburstdata.openjson.JSONArray;
+import com.starburstdata.openjson.JSONException;
+import com.starburstdata.openjson.JSONObject;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StandardStructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StructField;
-import org.openx.data.jsonserde.json.JSONArray;
-import org.openx.data.jsonserde.json.JSONException;
-import org.openx.data.jsonserde.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This Object Inspector is used to look into a JSonObject object.
@@ -67,7 +68,7 @@ public class JsonStructObjectInspector extends StandardStructObjectInspector {
             // sometimes getting [] instead of {} for an empty field.
             // this line should help them
             if(ja.length() == 0 ) return null;
-            return getStructFieldDataFromList(ja.getAsArrayList(), fieldRef );
+            return getStructFieldDataFromJsonArray(ja, fieldRef );
         } else {
             throw new Error("Data is not JSONObject  but " + data.getClass().getCanonicalName() +
                     " with value " + data.toString()) ;
@@ -88,9 +89,16 @@ public class JsonStructObjectInspector extends StandardStructObjectInspector {
            return data.get(idx);
        }
     }
-    
 
-    
+    public Object getStructFieldDataFromJsonArray(JSONArray data, StructField fieldRef ) {
+        int idx = fields.indexOf(fieldRef);
+        try {
+            return data.get(idx);
+        } catch (JSONException ex) {
+            return null;
+        }
+    }
+
     public Object getStructFieldDataFromJsonObject(JSONObject data, StructField fieldRef ) {
         if (JsonObjectInspectorUtils.checkObject(data) == null) {
             return null;
