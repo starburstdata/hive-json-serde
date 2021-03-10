@@ -65,7 +65,7 @@ public class JsonUnionTest {
         w = new Text("{\"country\":\"Switzerland\",\"stuff\":2}");
         result = (JSONObject) instance.deserialize(w);
         val =  soi.getStructFieldData(result, sfr) ;
-        assertEquals("2", val);
+        assertEquals(2, val);
         assertEquals(0, uoi.getTag(val));
 
         // now, struct
