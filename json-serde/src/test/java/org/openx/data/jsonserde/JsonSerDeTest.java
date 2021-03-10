@@ -697,7 +697,7 @@ public class JsonSerDeTest {
         assertEquals("str", soi.getStructFieldData(res, soi.getStructFieldRef("stringCol")));
         assertNull(soi.getStructFieldData(res, soi.getStructFieldRef("nullCol")));
         assertNull(soi.getStructFieldData(res, soi.getStructFieldRef("missingCol")));
-        assertEquals(jsonStr,"{\"nullCol\":null,\"stringCol\":\"str\",\"missingCol\":null}");
+        assertEquals(jsonStr,"{\"stringCol\":\"str\",\"nullCol\":null,\"missingCol\":null}");
     }
 
     @Test
@@ -729,6 +729,6 @@ public class JsonSerDeTest {
 
         assertNull(soi.getStructFieldData(res, soi.getStructFieldRef("missingStructCol")));
 
-        assertEquals("{\"missingStructCol\":null,\"structCol\":{\"name\":\"myName\"},\"structNullCol\":{\"name\":null}}", jsonStr);
+        assertEquals("{\"structCol\":{\"name\":\"myName\"},\"structNullCol\":{\"name\":null},\"missingStructCol\":null}", jsonStr);
     }
 }
