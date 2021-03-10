@@ -12,16 +12,33 @@
 package org.openx.data.jsonserde.objectinspector;
 
 
-import java.util.*;
-
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector.PrimitiveCategory;
-import org.apache.hadoop.hive.serde2.objectinspector.UnionObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.AbstractPrimitiveJavaObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
-import org.apache.hadoop.hive.serde2.typeinfo.*;
-import org.openx.data.jsonserde.objectinspector.primitive.*;
+import org.apache.hadoop.hive.serde2.typeinfo.ListTypeInfo;
+import org.apache.hadoop.hive.serde2.typeinfo.MapTypeInfo;
+import org.apache.hadoop.hive.serde2.typeinfo.PrimitiveTypeInfo;
+import org.apache.hadoop.hive.serde2.typeinfo.StructTypeInfo;
+import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
+import org.apache.hadoop.hive.serde2.typeinfo.UnionTypeInfo;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringBooleanObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringByteObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringDoubleObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringFloatObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringIntObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringJsonObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringLongObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringShortObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringTimestampObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.TypeEntryShim;
+
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  *

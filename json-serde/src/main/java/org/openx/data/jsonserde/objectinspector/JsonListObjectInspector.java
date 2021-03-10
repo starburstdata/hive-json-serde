@@ -12,14 +12,14 @@
 
 package org.openx.data.jsonserde.objectinspector;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.starburstdata.openjson.JSONArray;
+import com.starburstdata.openjson.JSONException;
+import com.starburstdata.openjson.JSONObject;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StandardListObjectInspector;
-import org.openx.data.jsonserde.json.JSONArray;
-import org.openx.data.jsonserde.json.JSONException;
-import org.openx.data.jsonserde.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author rcongiu

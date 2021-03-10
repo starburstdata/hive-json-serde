@@ -1,10 +1,11 @@
 package org.openx.data.jsonserde.objectinspector;
 
-import org.apache.hadoop.hive.serde2.SerDeException;
-import org.apache.hadoop.hive.serde2.objectinspector.*;
-import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
-import org.openx.data.jsonserde.json.JSONArray;
-import org.openx.data.jsonserde.json.JSONObject;
+import com.starburstdata.openjson.JSONArray;
+import com.starburstdata.openjson.JSONObject;
+import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils;
+import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.UnionObjectInspector;
 
 import java.util.List;
 

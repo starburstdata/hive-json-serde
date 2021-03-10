@@ -12,12 +12,12 @@
 
 package org.openx.data.jsonserde.objectinspector;
 
-import java.util.Map;
+import com.starburstdata.openjson.JSONException;
+import com.starburstdata.openjson.JSONObject;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StandardMapObjectInspector;
-import org.apache.hadoop.io.Text;
-import org.openx.data.jsonserde.json.JSONException;
-import org.openx.data.jsonserde.json.JSONObject;
+
+import java.util.Map;
 
 /**
  *

@@ -13,26 +13,24 @@
 
 package org.openx.data.jsonserde;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.hadoop.hive.serde2.AbstractSerDe;
-import org.apache.hadoop.hive.serde2.SerDeException;
-import org.apache.hadoop.hive.serde2.objectinspector.*;
-import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
-import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
-import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoUtils;
-import org.apache.hadoop.io.Writable;
-
+import com.starburstdata.openjson.JSONArray;
+import com.starburstdata.openjson.JSONException;
+import com.starburstdata.openjson.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hive.serde.serdeConstants;
+import org.apache.hadoop.hive.serde2.AbstractSerDe;
+import org.apache.hadoop.hive.serde2.SerDeException;
 import org.apache.hadoop.hive.serde2.SerDeStats;
+import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.MapObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector.Category;
+import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.StructField;
+import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.UnionObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.BooleanObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.ByteObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
@@ -42,22 +40,22 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.LongObjectInspect
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.ShortObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.TimestampObjectInspector;
-
 import org.apache.hadoop.hive.serde2.typeinfo.StructTypeInfo;
+import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
+import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
+import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoUtils;
 import org.apache.hadoop.io.Text;
-import org.openx.data.jsonserde.json.JSONArray;
-import org.openx.data.jsonserde.json.JSONException;
-import org.openx.data.jsonserde.json.JSONObject;
-import org.openx.data.jsonserde.json.JSONOptions;
+import org.apache.hadoop.io.Writable;
 import org.openx.data.jsonserde.objectinspector.JsonObjectInspectorFactory;
 import org.openx.data.jsonserde.objectinspector.JsonStructOIOptions;
-
-import javax.print.attribute.standard.DateTimeAtCompleted;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hive.serde.serdeConstants;
-import org.apache.hadoop.hive.serde2.typeinfo.PrimitiveTypeInfo;
-import org.openx.data.jsonserde.objectinspector.primitive.JavaStringTimestampObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.ParsePrimitiveUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Properties:
@@ -144,8 +142,6 @@ public class JsonSerDe extends AbstractSerDe {
 
         // dots in key names. Substitute with underscores
         options.setDotsInKeyNames(Boolean.parseBoolean(tbl.getProperty(PROP_DOTS_IN_KEYS,"false")));
-
-        JSONOptions.globalOptions = new JSONOptions().setCaseInsensitive(options.isCaseInsensitive());
 
         rowObjectInspector = (StructObjectInspector) JsonObjectInspectorFactory
                 .getJsonObjectInspectorFromTypeInfo(rowTypeInfo, options);
@@ -280,8 +276,8 @@ public class JsonSerDe extends AbstractSerDe {
                                 serializeField(
                                     data,
                                     sf.getFieldObjectInspector()));
-                } else if(explicitNull) {
-                    result.putNull(getSerializedFieldName(columnNames, i, sf));
+                } else if (explicitNull) {
+                    result.put(getSerializedFieldName(columnNames, i, sf), JSONObject.NULL);
                 }
             } catch (JSONException ex) {
                 LOG.warn("Problem serializing", ex);

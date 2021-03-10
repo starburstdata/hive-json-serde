@@ -11,26 +11,47 @@
  *======================================================================*/
 package org.openx.data.jsonserde;
 
+import com.starburstdata.openjson.JSONArray;
+import com.starburstdata.openjson.JSONException;
+import com.starburstdata.openjson.JSONObject;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.serde.serdeConstants;
 import org.apache.hadoop.hive.serde2.SerDeException;
-import org.apache.hadoop.hive.serde2.objectinspector.*;
+import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
+import org.apache.hadoop.hive.serde2.objectinspector.StructField;
+import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.junit.*;
-import org.openx.data.jsonserde.json.JSONArray;
-import org.openx.data.jsonserde.json.JSONException;
-import org.openx.data.jsonserde.json.JSONObject;
-import org.openx.data.jsonserde.objectinspector.primitive.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringBooleanObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringByteObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringDoubleObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringFloatObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringIntObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringLongObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringShortObjectInspector;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  *

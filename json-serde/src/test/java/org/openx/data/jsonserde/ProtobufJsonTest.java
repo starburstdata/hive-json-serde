@@ -12,12 +12,12 @@
 
 package org.openx.data.jsonserde;
 
+import com.starburstdata.openjson.JSONObject;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.serde.serdeConstants;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.junit.Test;
-import org.openx.data.jsonserde.json.JSONObject;
 
 import java.util.Properties;
 

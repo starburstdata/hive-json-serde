@@ -1,22 +1,22 @@
 package org.openx.data.jsonserde;
 
-import static org.junit.Assert.*;
-
-import java.util.Properties;
-
+import com.starburstdata.openjson.JSONException;
+import com.starburstdata.openjson.JSONObject;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.ql.udf.UDFJson;
 import org.apache.hadoop.hive.serde.serdeConstants;
 import org.apache.hadoop.hive.serde2.SerDeException;
-import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.junit.Before;
 import org.junit.Test;
-import org.openx.data.jsonserde.json.JSONException;
-import org.openx.data.jsonserde.json.JSONObject;
+
+import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Tests getJson Object
@@ -148,7 +148,5 @@ public class GetJsonObjectTest {
 
         String sres = loi.getPrimitiveJavaObject(res);
         assertEquals("page", sres);
-
     }
-
 }

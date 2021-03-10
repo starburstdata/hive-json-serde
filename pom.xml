@@ -27,6 +27,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
+        <openjson.version>1.8-SNAPSHOT</openjson.version>
         <!-- cdh4 versions -->
         <cdh4.version>4.7.1</cdh4.version>
         <cdh4.hive.version>0.10.0-cdh${cdh4.version}</cdh4.hive.version>

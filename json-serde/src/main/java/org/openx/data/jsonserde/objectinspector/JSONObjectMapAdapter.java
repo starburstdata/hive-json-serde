@@ -12,13 +12,14 @@
 
 package org.openx.data.jsonserde.objectinspector;
 
+import com.starburstdata.openjson.JSONException;
+import com.starburstdata.openjson.JSONObject;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import org.openx.data.jsonserde.json.JSONException;
-import org.openx.data.jsonserde.json.JSONObject;
 
 /**
  * JSONObject is technically different from a map, since a json object
