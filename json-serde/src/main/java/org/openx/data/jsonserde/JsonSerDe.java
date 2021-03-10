@@ -278,7 +278,7 @@ public class JsonSerDe extends AbstractSerDe {
                                     data,
                                     sf.getFieldObjectInspector()));
                 } else if (explicitNull) {
-                    result.put(getSerializedFieldName(columnNames, i, sf), JSONObject.NULL);
+                    result.putNull(getSerializedFieldName(columnNames, i, sf));
                 }
             } catch (JSONException ex) {
                 LOG.warn("Problem serializing", ex);

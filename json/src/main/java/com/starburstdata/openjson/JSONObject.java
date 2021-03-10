@@ -343,6 +343,20 @@ public class JSONObject {
     }
 
     /**
+     * Put a null value for key in the JSONObject.
+     * @param key   A key string.
+     * @return this.
+     * @throws JSONException if the key is null.
+     */
+    public JSONObject putNull(String key) throws JSONException {
+        if (key == null) {
+            throw new JSONException("Null key.");
+        }
+        this.nameValuePairs.put(key, null);
+        return this;
+    }
+
+    /**
      * Equivalent to {@code put(name, value)} when both parameters are non-null;
      * does nothing otherwise.
      *
