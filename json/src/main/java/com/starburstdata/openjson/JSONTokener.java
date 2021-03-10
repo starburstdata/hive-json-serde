@@ -291,6 +291,12 @@ public class JSONTokener {
             case 'f':
                 return '\f';
 
+            case 'a':
+                return '\007';
+
+            case 'v':
+                return '\011';
+
             case '\'':
             case '"':
             case '\\':
