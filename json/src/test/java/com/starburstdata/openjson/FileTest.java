@@ -238,8 +238,8 @@ public class FileTest {
                 "  }\n" +
                 "]";
 
-        JSONArray x1 = (JSONArray) new JSONTokener(new InputStreamReader(this.getClass().getResourceAsStream("/sample-01.json"))).nextValue();
-        JSONArray x2 = (JSONArray) new JSONTokener(ref).nextValue();
+        JSONArray x1 = (JSONArray) new JSONTokener(true, new InputStreamReader(this.getClass().getResourceAsStream("/sample-01.json"))).nextValue();
+        JSONArray x2 = (JSONArray) new JSONTokener(true, ref).nextValue();
 
         Assert.assertTrue(jsonEquals(x1, x2));
     }

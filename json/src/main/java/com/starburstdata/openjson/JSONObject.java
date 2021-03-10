@@ -16,6 +16,8 @@
 
 package com.starburstdata.openjson;
 
+import org.springframework.util.LinkedCaseInsensitiveMap;
+
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -120,13 +122,15 @@ public class JSONObject {
         }
     };
 
-    private final LinkedHashMap<String, Object> nameValuePairs;
+    private final boolean caseInsensitive;
+    private final Map<String, Object> nameValuePairs;
 
     /**
      * Creates a {@code JSONObject} with no name/value mappings.
      */
-    public JSONObject() {
-        nameValuePairs = new LinkedHashMap<String, Object>();
+    public JSONObject(boolean caseInsensitive) {
+        this.caseInsensitive = caseInsensitive;
+        nameValuePairs = caseInsensitive ? new LinkedCaseInsensitiveMap<Object>() : new LinkedHashMap<String, Object>();
     }
 
     /**
@@ -138,8 +142,8 @@ public class JSONObject {
      * @throws NullPointerException if any of the map's keys are null.
      */
     /* (accept a raw type for API compatibility) */
-    public JSONObject(Map copyFrom) {
-        this();
+    public JSONObject(boolean caseInsensitive, Map copyFrom) {
+        this(caseInsensitive);
         Map<?, ?> contentsTyped = (Map<?, ?>) copyFrom;
         for (Map.Entry<?, ?> entry : contentsTyped.entrySet()) {
             /*
@@ -150,7 +154,7 @@ public class JSONObject {
             if (key == null) {
                 throw new NullPointerException("key == null");
             }
-            nameValuePairs.put(key, wrap(entry.getValue()));
+            nameValuePairs.put(key, wrap(caseInsensitive, entry.getValue()));
         }
     }
 
@@ -163,11 +167,12 @@ public class JSONObject {
      * @throws JSONException if the parse fails or doesn't yield a
      *                       {@code JSONObject}.
      */
-    public JSONObject(JSONTokener readFrom) throws JSONException {
+    public JSONObject(boolean caseInsensitive, JSONTokener readFrom) throws JSONException {
         /*
          * Getting the parser to populate this could get tricky. Instead, just
          * parse to temporary JSONObject and then steal the data from that.
          */
+        this.caseInsensitive = caseInsensitive;
         Object object = readFrom.nextValue();
         if (object instanceof JSONObject) {
             this.nameValuePairs = ((JSONObject) object).nameValuePairs;
@@ -184,8 +189,8 @@ public class JSONObject {
      * @throws JSONException if the parse fails or doesn't yield a {@code
      *                       JSONObject}.
      */
-    public JSONObject(String json) throws JSONException {
-        this(new JSONTokener(json));
+    public JSONObject(boolean caseInsensitive, String json) throws JSONException {
+        this(caseInsensitive, new JSONTokener(caseInsensitive, json));
     }
 
     /**
@@ -197,8 +202,8 @@ public class JSONObject {
      * @param names    The names of the fields to copy.
      * @throws JSONException On internal errors. Shouldn't happen.
      */
-    public JSONObject(JSONObject copyFrom, String[] names) throws JSONException {
-        this();
+    public JSONObject(boolean caseInsensitive, JSONObject copyFrom, String[] names) throws JSONException {
+        this(caseInsensitive);
         for (String name : names) {
             Object value = copyFrom.opt(name);
             if (value != null) {
@@ -212,18 +217,18 @@ public class JSONObject {
      * @param bean the bean to create the json object from
      * @throws JSONException If there is an exception while reading the bean
      */
-    public JSONObject(Object bean) throws JSONException {
-        this(propertiesAsMap(bean));
+    public JSONObject(boolean caseInsensitive, Object bean) throws JSONException {
+        this(caseInsensitive, propertiesAsMap(caseInsensitive, bean));
     }
 
-    private static Map<String, Object> propertiesAsMap(Object bean) throws JSONException {
+    private static Map<String, Object> propertiesAsMap(boolean caseInsensitive, Object bean) throws JSONException {
         Map<String, Object> props = new TreeMap<String, Object>();
         try {
             PropertyDescriptor[] properties = Introspector.getBeanInfo(bean.getClass(), Object.class)
                     .getPropertyDescriptors();
             for (PropertyDescriptor prop : properties) {
                 Object v = prop.getReadMethod().invoke(bean);
-                props.put(prop.getDisplayName(), wrap(v));
+                props.put(prop.getDisplayName(), wrap(caseInsensitive, v));
             }
         } catch (IllegalAccessException e) {
             throw new JSONException(e);
@@ -386,7 +391,7 @@ public class JSONObject {
             JSONArray array = (JSONArray) current;
             array.checkedPut(value);
         } else {
-            JSONArray array = new JSONArray();
+            JSONArray array = new JSONArray(caseInsensitive);
             array.checkedPut(current);
             array.checkedPut(value);
             nameValuePairs.put(name, array);
@@ -413,7 +418,7 @@ public class JSONObject {
         if (current instanceof JSONArray) {
             array = (JSONArray) current;
         } else if (current == null) {
-            JSONArray newArray = new JSONArray();
+            JSONArray newArray = new JSONArray(caseInsensitive);
             nameValuePairs.put(name, newArray);
             array = newArray;
         } else {
@@ -783,7 +788,7 @@ public class JSONObject {
      * @throws JSONException On internal errors. Shouldn't happen.
      */
     public JSONArray toJSONArray(JSONArray names) throws JSONException {
-        JSONArray result = new JSONArray();
+        JSONArray result = new JSONArray(caseInsensitive);
         if (names == null) {
             return null;
         }
@@ -834,7 +839,7 @@ public class JSONObject {
     public JSONArray names() {
         return nameValuePairs.isEmpty()
                 ? null
-                : new JSONArray(new ArrayList<String>(nameValuePairs.keySet()));
+                : new JSONArray(caseInsensitive, new ArrayList<String>(nameValuePairs.keySet()));
     }
 
     /**
@@ -951,7 +956,7 @@ public class JSONObject {
      * @param o The object to wrap.
      * @return The wrapped (if necessary) form of the object {$code o}
      */
-    public static Object wrap(Object o) {
+    public static Object wrap(boolean caseInsensitive, Object o) {
         if (o == null) {
             return NULL;
         }
@@ -963,12 +968,12 @@ public class JSONObject {
         }
         try {
             if (o instanceof Collection) {
-                return new JSONArray((Collection) o);
+                return new JSONArray(caseInsensitive, (Collection) o);
             } else if (o.getClass().isArray()) {
-                return new JSONArray(o);
+                return new JSONArray(caseInsensitive, o);
             }
             if (o instanceof Map) {
-                return new JSONObject((Map) o);
+                return new JSONObject(caseInsensitive, (Map) o);
             }
             if (o instanceof Boolean ||
                     o instanceof Byte ||
@@ -984,7 +989,7 @@ public class JSONObject {
             if (o.getClass().getPackage().getName().startsWith("java.") || o instanceof Enum<?>) {
                 return o.toString();
             } else {
-                return new JSONObject(o);
+                return new JSONObject(caseInsensitive, o);
             }
         } catch (Exception ignored) {
         }

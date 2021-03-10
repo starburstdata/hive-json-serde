@@ -320,7 +320,7 @@ public class JsonSerDeTest {
 
         Object result = instance.serialize(row, soi);
 
-        JSONObject res = new JSONObject(result.toString());
+        JSONObject res = new JSONObject(true, result.toString());
         assertEquals(res.getString("atext"), row.get(0));
 
         assertEquals(res.get("anumber"), row.get(1));

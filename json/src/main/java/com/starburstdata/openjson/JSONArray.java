@@ -47,12 +47,14 @@ import java.util.List;
  */
 public class JSONArray {
 
+    private final boolean caseInsensitive;
     private final List<Object> values;
 
     /**
      * Creates a {@code JSONArray} with no values.
      */
-    public JSONArray() {
+    public JSONArray(boolean caseInsensitive) {
+        this.caseInsensitive = caseInsensitive;
         values = new ArrayList<Object>();
     }
 
@@ -65,11 +67,11 @@ public class JSONArray {
      *                 inconsistent state.
      */
     /* Accept a raw type for API compatibility */
-    public JSONArray(Collection<?> copyFrom) {
-        this();
+    public JSONArray(boolean caseInsensitive, Collection<?> copyFrom) {
+        this(caseInsensitive);
         if (copyFrom != null) {
             for (Object aCopyFrom : copyFrom) {
-                put(JSONObject.wrap(aCopyFrom));
+                put(JSONObject.wrap(caseInsensitive, aCopyFrom));
             }
         }
     }
@@ -83,11 +85,12 @@ public class JSONArray {
      * @throws JSONException if the parse fails or doesn't yield a
      *                       {@code JSONArray}.
      */
-    public JSONArray(JSONTokener readFrom) throws JSONException {
+    public JSONArray(boolean caseInsensitive, JSONTokener readFrom) throws JSONException {
         /*
          * Getting the parser to populate this could get tricky. Instead, just
          * parse to temporary JSONArray and then steal the data from that.
          */
+        this.caseInsensitive = caseInsensitive;
         Object object = readFrom.nextValue();
         if (object instanceof JSONArray) {
             values = ((JSONArray) object).values;
@@ -103,8 +106,8 @@ public class JSONArray {
      * @throws JSONException if the parse fails or doesn't yield a {@code
      *                       JSONArray}.
      */
-    public JSONArray(String json) throws JSONException {
-        this(new JSONTokener(json));
+    public JSONArray(boolean caseInsensitive, String json) throws JSONException {
+        this(caseInsensitive, new JSONTokener(caseInsensitive, json));
     }
 
     /**
@@ -113,14 +116,15 @@ public class JSONArray {
      * @param array The values to use.
      * @throws JSONException if any of the values are non-finite double values (i.e. NaN or infinite)
      */
-    public JSONArray(Object array) throws JSONException {
+    public JSONArray(boolean caseInsensitive, Object array) throws JSONException {
         if (!array.getClass().isArray()) {
             throw new JSONException("Not a primitive array: " + array.getClass());
         }
         final int length = Array.getLength(array);
+        this.caseInsensitive = caseInsensitive;
         values = new ArrayList<Object>(length);
         for (int i = 0; i < length; ++i) {
-            put(JSONObject.wrap(Array.get(array, i)));
+            put(JSONObject.wrap(caseInsensitive, Array.get(array, i)));
         }
     }
 
@@ -187,7 +191,7 @@ public class JSONArray {
         if (value == null) {
             return put((Object)null);
         }
-        values.add(new JSONArray(value));
+        values.add(new JSONArray(caseInsensitive, value));
         return this;
     }
 
@@ -290,7 +294,7 @@ public class JSONArray {
         if (value == null) {
             return put(index, (Object)null);
         }
-        return put(index, new JSONArray(value));
+        return put(index, new JSONArray(caseInsensitive, value));
     }
 
     /**
@@ -665,7 +669,7 @@ public class JSONArray {
      * @throws JSONException Should not be possible.
      */
     public JSONObject toJSONObject(JSONArray names) throws JSONException {
-        JSONObject result = new JSONObject();
+        JSONObject result = new JSONObject(caseInsensitive);
         int length = Math.min(names.length(), values.size());
         if (length == 0) {
             return null;

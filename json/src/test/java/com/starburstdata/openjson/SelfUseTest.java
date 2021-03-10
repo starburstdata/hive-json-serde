@@ -41,7 +41,7 @@ public class SelfUseTest {
     private int tokenerNextCalls = 0;
     private int tokenerNextValueCalls = 0;
 
-    private final JSONObject object = new JSONObject() {
+    private final JSONObject object = new JSONObject(true) {
         @Override
         public JSONObject put(String name, Object value) throws JSONException {
             objectPutCalls++;
@@ -91,7 +91,7 @@ public class SelfUseTest {
         }
     };
 
-    private final JSONArray array = new JSONArray() {
+    private final JSONArray array = new JSONArray(true) {
         @Override
         public JSONArray put(int index, Object value) throws JSONException {
             arrayPutCalls++;
@@ -141,7 +141,7 @@ public class SelfUseTest {
         }
     };
 
-    private final JSONTokener tokener = new JSONTokener("{\"foo\": [true]}") {
+    private final JSONTokener tokener = new JSONTokener(true, "{\"foo\": [true]}") {
         @Override
         public char next() {
             tokenerNextCalls++;
@@ -251,7 +251,7 @@ public class SelfUseTest {
         array.put("foo");
         array.put("baz");
         array.put("bar");
-        JSONArray values = new JSONArray();
+        JSONArray values = new JSONArray(true);
         values.put(5.5d);
         values.put(11d);
         values.put(30);

@@ -258,7 +258,7 @@ public class JSONStringerTest {
 
     @Test
     public void testJSONArrayAsValue() throws JSONException {
-        JSONArray array = new JSONArray();
+        JSONArray array = new JSONArray(true);
         array.put(false);
         JSONStringer stringer = new JSONStringer();
         stringer.array();
@@ -269,7 +269,7 @@ public class JSONStringerTest {
 
     @Test
     public void testJSONObjectAsValue() throws JSONException {
-        JSONObject object = new JSONObject();
+        JSONObject object = new JSONObject(true);
         object.put("a", false);
         JSONStringer stringer = new JSONStringer();
         stringer.object();
@@ -344,7 +344,7 @@ public class JSONStringerTest {
 
     @Test
     public void testMaxDepthWithArrayValue() throws JSONException {
-        JSONArray array = new JSONArray();
+        JSONArray array = new JSONArray(true);
         array.put(false);
 
         JSONStringer stringer = new JSONStringer();
@@ -360,7 +360,7 @@ public class JSONStringerTest {
 
     @Test
     public void testMaxDepthWithObjectValue() throws JSONException {
-        JSONObject object = new JSONObject();
+        JSONObject object = new JSONObject(true);
         object.put("a", false);
         JSONStringer stringer = new JSONStringer();
         for (int i = 0; i < 20; i++) {
@@ -390,7 +390,7 @@ public class JSONStringerTest {
 
     @Test
     public void testEnums() {
-        JSONObject x = new JSONObject();
+        JSONObject x = new JSONObject(true);
         x.put("a", TimeUnit.SECONDS);
         x.put("b", "xyx");
         JSONStringer s = new JSONStringer();
@@ -402,7 +402,7 @@ public class JSONStringerTest {
 
     @Test
     public void testJsonString() {
-        JSONObject x = new JSONObject();
+        JSONObject x = new JSONObject(true);
         x.put("a", new Goo());
         JSONStringer s = new JSONStringer();
         s.array();

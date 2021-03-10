@@ -24,7 +24,7 @@ import java.io.Reader;
 /**
  * Parses a JSON (<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)
  * encoded string into the corresponding object. Most clients of
- * this class will use only need the {@link #JSONTokener(String) constructor}
+ * this class will use only need the {@link #JSONTokener(boolean, String) constructor}
  * and {@link #nextValue} method. Example usage: <pre>
  * String json = "{"
  *         + "  \"query\": \"Pizza\", "
@@ -70,25 +70,31 @@ public class JSONTokener {
     private final String in;
 
     /**
+     * Create case insensitive object keys
+     */
+    private final boolean caseInsensitive;
+
+    /**
      * The index of the next character to be returned by {@link #next}. When
      * the input is exhausted, this equals the input's length.
      */
     private int pos;
 
     /**
+     * @param caseInsensitive
      * @param in JSON encoded string. Null is not permitted and will yield a
      *           tokener that throws {@code NullPointerExceptions} when methods are
-     *           called.
      */
-    public JSONTokener(String in) {
+    public JSONTokener(boolean caseInsensitive, String in) {
         // consume an optional byte order mark (BOM) if it exists
         if (in != null && in.startsWith("\ufeff")) {
             in = in.substring(1);
         }
         this.in = in;
+        this.caseInsensitive = caseInsensitive;
     }
 
-    public JSONTokener(Reader input) throws IOException {
+    public JSONTokener(boolean caseInsensitive, Reader input) throws IOException {
         StringBuilder s = new StringBuilder();
         char[] readBuf = new char[102400];
         int n = input.read(readBuf);
@@ -97,6 +103,7 @@ public class JSONTokener {
             n = input.read(readBuf);
         }
         in = s.toString();
+        this.caseInsensitive = caseInsensitive;
         pos = 0;
     }
 
@@ -368,7 +375,7 @@ public class JSONTokener {
      * an object. The opening brace '{' should have already been read.
      */
     private JSONObject readObject() throws JSONException {
-        JSONObject result = new JSONObject();
+        JSONObject result = new JSONObject(caseInsensitive);
 
         /* Peek to see if this is the empty object. */
         int first = nextCleanInternal();
@@ -423,7 +430,7 @@ public class JSONTokener {
      * equivalent to "[null,null]".
      */
     private JSONArray readArray() throws JSONException {
-        JSONArray result = new JSONArray();
+        JSONArray result = new JSONArray(caseInsensitive);
 
         /* to cover input that ends with ",]". */
         boolean hasTrailingSeparator = false;

@@ -26,120 +26,120 @@ public class JSONTokenerTest extends TestCase {
 
     public void testNulls() throws JSONException {
         // JSONTokener accepts null, only to fail later on almost all APIs!
-        new JSONTokener((String) null).back();
+        new JSONTokener(true, (String) null).back();
 
         try {
-            new JSONTokener((String) null).more();
+            new JSONTokener(true, (String) null).more();
             fail();
         } catch (NullPointerException ignored) {
         }
 
         try {
-            new JSONTokener((String) null).next();
+            new JSONTokener(true, (String) null).next();
             fail();
         } catch (NullPointerException ignored) {
         }
 
         try {
-            new JSONTokener((String) null).next(3);
+            new JSONTokener(true, (String) null).next(3);
             fail();
         } catch (NullPointerException ignored) {
         }
 
         try {
-            new JSONTokener((String) null).next('A');
+            new JSONTokener(true, (String) null).next('A');
             fail();
         } catch (NullPointerException ignored) {
         }
 
         try {
-            new JSONTokener((String) null).nextClean();
+            new JSONTokener(true, (String) null).nextClean();
             fail();
         } catch (NullPointerException ignored) {
         }
 
         try {
-            new JSONTokener((String) null).nextString('"');
+            new JSONTokener(true, (String) null).nextString('"');
             fail();
         } catch (NullPointerException ignored) {
         }
 
         try {
-            new JSONTokener((String) null).nextTo('A');
+            new JSONTokener(true, (String) null).nextTo('A');
             fail();
         } catch (NullPointerException ignored) {
         }
 
         try {
-            new JSONTokener((String) null).nextTo("ABC");
+            new JSONTokener(true, (String) null).nextTo("ABC");
             fail();
         } catch (NullPointerException ignored) {
         }
 
         try {
-            new JSONTokener((String) null).nextValue();
+            new JSONTokener(true, (String) null).nextValue();
             fail();
         } catch (NullPointerException ignored) {
         }
 
         try {
-            new JSONTokener((String) null).skipPast("ABC");
+            new JSONTokener(true, (String) null).skipPast("ABC");
             fail();
         } catch (NullPointerException ignored) {
         }
 
         try {
-            new JSONTokener((String) null).skipTo('A');
+            new JSONTokener(true, (String) null).skipTo('A');
             fail();
         } catch (NullPointerException ignored) {
         }
 
         //noinspection ThrowableResultOfMethodCallIgnored
         assertEquals("foo! at character 0 of null",
-                new JSONTokener((String) null).syntaxError("foo!").getMessage());
+                new JSONTokener(true, (String) null).syntaxError("foo!").getMessage());
 
-        assertEquals(" at character 0 of null", new JSONTokener((String) null).toString());
+        assertEquals(" at character 0 of null", new JSONTokener(true, (String) null).toString());
     }
 
     public void testEmptyString() throws JSONException {
-        JSONTokener backTokener = new JSONTokener("");
+        JSONTokener backTokener = new JSONTokener(true, "");
         backTokener.back();
         assertEquals(" at character 0 of ", backTokener.toString());
-        assertFalse(new JSONTokener("").more());
-        assertEquals('\0', new JSONTokener("").next());
+        assertFalse(new JSONTokener(true, "").more());
+        assertEquals('\0', new JSONTokener(true, "").next());
         try {
-            new JSONTokener("").next(3);
+            new JSONTokener(true, "").next(3);
             fail();
         } catch (JSONException ignored) {
         }
         try {
-            new JSONTokener("").next('A');
+            new JSONTokener(true, "").next('A');
             fail();
         } catch (JSONException ignored) {
         }
-        assertEquals('\0', new JSONTokener("").nextClean());
+        assertEquals('\0', new JSONTokener(true, "").nextClean());
         try {
-            new JSONTokener("").nextString('"');
+            new JSONTokener(true, "").nextString('"');
             fail();
         } catch (JSONException ignored) {
         }
-        assertEquals("", new JSONTokener("").nextTo('A'));
-        assertEquals("", new JSONTokener("").nextTo("ABC"));
+        assertEquals("", new JSONTokener(true, "").nextTo('A'));
+        assertEquals("", new JSONTokener(true, "").nextTo("ABC"));
         try {
-            new JSONTokener("").nextValue();
+            new JSONTokener(true, "").nextValue();
             fail();
         } catch (JSONException ignored) {
         }
-        new JSONTokener("").skipPast("ABC");
-        assertEquals('\0', new JSONTokener("").skipTo('A'));
+        new JSONTokener(true, "").skipPast("ABC");
+        assertEquals('\0', new JSONTokener(true, "").skipTo('A'));
         //noinspection ThrowableResultOfMethodCallIgnored
         assertEquals("foo! at character 0 of ",
-                new JSONTokener("").syntaxError("foo!").getMessage());
-        assertEquals(" at character 0 of ", new JSONTokener("").toString());
+                new JSONTokener(true, "").syntaxError("foo!").getMessage());
+        assertEquals(" at character 0 of ", new JSONTokener(true, "").toString());
     }
 
     public void testCharacterNavigation() throws JSONException {
-        JSONTokener abcdeTokener = new JSONTokener("ABCDE");
+        JSONTokener abcdeTokener = new JSONTokener(true, "ABCDE");
         assertEquals('A', abcdeTokener.next());
         assertEquals('B', abcdeTokener.next('B'));
         assertEquals("CD", abcdeTokener.next(2));
@@ -157,7 +157,7 @@ public class JSONTokenerTest extends TestCase {
     }
 
     public void testBackNextAndMore() throws JSONException {
-        JSONTokener abcTokener = new JSONTokener("ABC");
+        JSONTokener abcTokener = new JSONTokener(true, "ABC");
         assertTrue(abcTokener.more());
         abcTokener.next();
         abcTokener.next();
@@ -176,7 +176,7 @@ public class JSONTokenerTest extends TestCase {
     }
 
     public void testNextMatching() throws JSONException {
-        JSONTokener abcdTokener = new JSONTokener("ABCD");
+        JSONTokener abcdTokener = new JSONTokener(true, "ABCD");
         assertEquals('A', abcdTokener.next('A'));
         try {
             abcdTokener.next('C'); // although it failed, this op consumes a character of input
@@ -193,7 +193,7 @@ public class JSONTokenerTest extends TestCase {
     }
 
     public void testNextN() throws JSONException {
-        JSONTokener abcdeTokener = new JSONTokener("ABCDEF");
+        JSONTokener abcdeTokener = new JSONTokener(true, "ABCDEF");
         assertEquals("", abcdeTokener.next(0));
         try {
             abcdeTokener.next(7);
@@ -209,7 +209,7 @@ public class JSONTokenerTest extends TestCase {
     }
 
     public void testNextNWithAllRemaining() throws JSONException {
-        JSONTokener tokener = new JSONTokener("ABCDEF");
+        JSONTokener tokener = new JSONTokener(true, "ABCDEF");
         tokener.next(3);
         try {
             tokener.next(3);
@@ -221,7 +221,7 @@ public class JSONTokenerTest extends TestCase {
     }
 
     public void testNext0() throws JSONException {
-        JSONTokener tokener = new JSONTokener("ABCDEF");
+        JSONTokener tokener = new JSONTokener(true, "ABCDEF");
         tokener.next(5);
         tokener.next();
         try {
@@ -235,7 +235,7 @@ public class JSONTokenerTest extends TestCase {
 
     public void testNextCleanComments() throws JSONException {
         JSONTokener tokener = new JSONTokener(
-                "  A  /*XX*/B/*XX//XX\n//XX\nXX*/C//X//X//X\nD/*X*///X\n");
+                true, "  A  /*XX*/B/*XX//XX\n//XX\nXX*/C//X//X//X\nD/*X*///X\n");
         assertEquals('A', tokener.nextClean());
         assertEquals('B', tokener.nextClean());
         assertEquals('C', tokener.nextClean());
@@ -244,7 +244,7 @@ public class JSONTokenerTest extends TestCase {
     }
 
     public void testNextCleanNestedCStyleComments() throws JSONException {
-        JSONTokener tokener = new JSONTokener("A /* B /* C */ D */ E");
+        JSONTokener tokener = new JSONTokener(true, "A /* B /* C */ D */ E");
         assertEquals('A', tokener.nextClean());
         assertEquals('D', tokener.nextClean());
         assertEquals('*', tokener.nextClean());
@@ -257,14 +257,14 @@ public class JSONTokenerTest extends TestCase {
      * http://b/2571423
      */
     public void testNextCleanHashComments() throws JSONException {
-        JSONTokener tokener = new JSONTokener("A # B */ /* C */ \nD #");
+        JSONTokener tokener = new JSONTokener(true, "A # B */ /* C */ \nD #");
         assertEquals('A', tokener.nextClean());
         assertEquals('D', tokener.nextClean());
         assertEquals('\0', tokener.nextClean());
     }
 
     public void testNextCleanCommentsTrailingSingleSlash() throws JSONException {
-        JSONTokener tokener = new JSONTokener(" / S /");
+        JSONTokener tokener = new JSONTokener(true, " / S /");
         assertEquals('/', tokener.nextClean());
         assertEquals('S', tokener.nextClean());
         assertEquals('/', tokener.nextClean());
@@ -274,24 +274,24 @@ public class JSONTokenerTest extends TestCase {
 
     public void testNextCleanTrailingOpenComment() throws JSONException {
         try {
-            new JSONTokener("  /* ").nextClean();
+            new JSONTokener(true, "  /* ").nextClean();
             fail();
         } catch (JSONException ignored) {
         }
-        assertEquals('\0', new JSONTokener("  // ").nextClean());
+        assertEquals('\0', new JSONTokener(true, "  // ").nextClean());
     }
 
     public void testNextCleanNewlineDelimiters() throws JSONException {
-        assertEquals('B', new JSONTokener("  // \r\n  B ").nextClean());
-        assertEquals('B', new JSONTokener("  // \n  B ").nextClean());
-        assertEquals('B', new JSONTokener("  // \r  B ").nextClean());
+        assertEquals('B', new JSONTokener(true, "  // \r\n  B ").nextClean());
+        assertEquals('B', new JSONTokener(true, "  // \n  B ").nextClean());
+        assertEquals('B', new JSONTokener(true, "  // \r  B ").nextClean());
     }
 
     public void testNextCleanSkippedWhitespace() throws JSONException {
-        assertEquals("character tabulation", 'A', new JSONTokener("\tA").nextClean());
-        assertEquals("line feed",            'A', new JSONTokener("\nA").nextClean());
-        assertEquals("carriage return",      'A', new JSONTokener("\rA").nextClean());
-        assertEquals("space",                'A', new JSONTokener(" A").nextClean());
+        assertEquals("character tabulation", 'A', new JSONTokener(true, "\tA").nextClean());
+        assertEquals("line feed",            'A', new JSONTokener(true, "\nA").nextClean());
+        assertEquals("carriage return",      'A', new JSONTokener(true, "\rA").nextClean());
+        assertEquals("space",                'A', new JSONTokener(true, " A").nextClean());
     }
 
     /**
@@ -334,19 +334,19 @@ public class JSONTokenerTest extends TestCase {
 
     private void assertNotClean(String name, char c) throws JSONException {
         assertEquals("The character " + name + " is not whitespace according to the JSON spec.",
-                c, new JSONTokener(new String(new char[] { c, 'A' })).nextClean());
+                c, new JSONTokener(true, new String(new char[] { c, 'A' })).nextClean());
     }
 
     public void testNextString() throws JSONException {
-        assertEquals("", new JSONTokener("'").nextString('\''));
-        assertEquals("", new JSONTokener("\"").nextString('\"'));
-        assertEquals("ABC", new JSONTokener("ABC'DEF").nextString('\''));
-        assertEquals("ABC", new JSONTokener("ABC'''DEF").nextString('\''));
+        assertEquals("", new JSONTokener(true, "'").nextString('\''));
+        assertEquals("", new JSONTokener(true, "\"").nextString('\"'));
+        assertEquals("ABC", new JSONTokener(true, "ABC'DEF").nextString('\''));
+        assertEquals("ABC", new JSONTokener(true, "ABC'''DEF").nextString('\''));
 
         // nextString permits slash-escaping of arbitrary characters!
-        assertEquals("ABC", new JSONTokener("A\\B\\C'DEF").nextString('\''));
+        assertEquals("ABC", new JSONTokener(true, "A\\B\\C'DEF").nextString('\''));
 
-        JSONTokener tokener = new JSONTokener(" 'abc' 'def' \"ghi\"");
+        JSONTokener tokener = new JSONTokener(true, " 'abc' 'def' \"ghi\"");
         tokener.next();
         assertEquals('\'', tokener.next());
         assertEquals("abc", tokener.nextString('\''));
@@ -361,12 +361,12 @@ public class JSONTokenerTest extends TestCase {
 
     public void testNextStringNoDelimiter() throws JSONException {
         try {
-            new JSONTokener("").nextString('\'');
+            new JSONTokener(true, "").nextString('\'');
             fail();
         } catch (JSONException ignored) {
         }
 
-        JSONTokener tokener = new JSONTokener(" 'abc");
+        JSONTokener tokener = new JSONTokener(true, " 'abc");
         tokener.next();
         tokener.next();
         try {
@@ -378,63 +378,63 @@ public class JSONTokenerTest extends TestCase {
 
     public void testNextStringEscapedQuote() throws JSONException {
         try {
-            new JSONTokener("abc\\").nextString('"');
+            new JSONTokener(true, "abc\\").nextString('"');
             fail();
         } catch (JSONException ignored) {
         }
 
         // we're mixing Java escaping like \" and JavaScript escaping like \\\"
         // which makes these tests extra tricky to read!
-        assertEquals("abc\"def", new JSONTokener("abc\\\"def\"ghi").nextString('"'));
-        assertEquals("abc\\def", new JSONTokener("abc\\\\def\"ghi").nextString('"'));
-        assertEquals("abc/def", new JSONTokener("abc\\/def\"ghi").nextString('"'));
-        assertEquals("abc\bdef", new JSONTokener("abc\\bdef\"ghi").nextString('"'));
-        assertEquals("abc\fdef", new JSONTokener("abc\\fdef\"ghi").nextString('"'));
-        assertEquals("abc\ndef", new JSONTokener("abc\\ndef\"ghi").nextString('"'));
-        assertEquals("abc\rdef", new JSONTokener("abc\\rdef\"ghi").nextString('"'));
-        assertEquals("abc\tdef", new JSONTokener("abc\\tdef\"ghi").nextString('"'));
+        assertEquals("abc\"def", new JSONTokener(true, "abc\\\"def\"ghi").nextString('"'));
+        assertEquals("abc\\def", new JSONTokener(true, "abc\\\\def\"ghi").nextString('"'));
+        assertEquals("abc/def", new JSONTokener(true, "abc\\/def\"ghi").nextString('"'));
+        assertEquals("abc\bdef", new JSONTokener(true, "abc\\bdef\"ghi").nextString('"'));
+        assertEquals("abc\fdef", new JSONTokener(true, "abc\\fdef\"ghi").nextString('"'));
+        assertEquals("abc\ndef", new JSONTokener(true, "abc\\ndef\"ghi").nextString('"'));
+        assertEquals("abc\rdef", new JSONTokener(true, "abc\\rdef\"ghi").nextString('"'));
+        assertEquals("abc\tdef", new JSONTokener(true, "abc\\tdef\"ghi").nextString('"'));
     }
 
     public void testNextStringUnicodeEscaped() throws JSONException {
         // we're mixing Java escaping like \\ and JavaScript escaping like \\u
-        assertEquals("abc def", new JSONTokener("abc\\u0020def\"ghi").nextString('"'));
-        assertEquals("abcU0020def", new JSONTokener("abc\\U0020def\"ghi").nextString('"'));
+        assertEquals("abc def", new JSONTokener(true, "abc\\u0020def\"ghi").nextString('"'));
+        assertEquals("abcU0020def", new JSONTokener(true, "abc\\U0020def\"ghi").nextString('"'));
 
         // JSON requires 4 hex characters after a unicode escape
         try {
-            new JSONTokener("abc\\u002\"").nextString('"');
+            new JSONTokener(true, "abc\\u002\"").nextString('"');
             fail();
         } catch (JSONException ignored) {
         }
         try {
-            new JSONTokener("abc\\u").nextString('"');
+            new JSONTokener(true, "abc\\u").nextString('"');
             fail();
         } catch (JSONException ignored) {
         }
         try {
-            new JSONTokener("abc\\u    \"").nextString('"');
+            new JSONTokener(true, "abc\\u    \"").nextString('"');
             fail();
         } catch (JSONException ignored) {
         }
-        assertEquals("abc\"def", new JSONTokener("abc\\u0022def\"ghi").nextString('"'));
+        assertEquals("abc\"def", new JSONTokener(true, "abc\\u0022def\"ghi").nextString('"'));
         try {
-            new JSONTokener("abc\\u000G\"").nextString('"');
+            new JSONTokener(true, "abc\\u000G\"").nextString('"');
             fail();
         } catch (JSONException ignored) {
         }
     }
 
     public void testNextStringNonQuote() throws JSONException {
-        assertEquals("AB", new JSONTokener("ABC").nextString('C'));
-        assertEquals("ABCD", new JSONTokener("AB\\CDC").nextString('C'));
-        assertEquals("AB\nC", new JSONTokener("AB\\nCn").nextString('n'));
+        assertEquals("AB", new JSONTokener(true, "ABC").nextString('C'));
+        assertEquals("ABCD", new JSONTokener(true, "AB\\CDC").nextString('C'));
+        assertEquals("AB\nC", new JSONTokener(true, "AB\\nCn").nextString('n'));
     }
 
     public void testNextTo() throws JSONException {
-        assertEquals("ABC", new JSONTokener("ABCDEFG").nextTo("DHI"));
-        assertEquals("ABCDEF", new JSONTokener("ABCDEF").nextTo(""));
+        assertEquals("ABC", new JSONTokener(true, "ABCDEFG").nextTo("DHI"));
+        assertEquals("ABCDEF", new JSONTokener(true, "ABCDEF").nextTo(""));
 
-        JSONTokener tokener = new JSONTokener("ABC\rDEF\nGHI\r\nJKL");
+        JSONTokener tokener = new JSONTokener(true, "ABC\rDEF\nGHI\r\nJKL");
         assertEquals("ABC", tokener.nextTo("M"));
         assertEquals('\r', tokener.next());
         assertEquals("DEF", tokener.nextTo("M"));
@@ -444,7 +444,7 @@ public class JSONTokenerTest extends TestCase {
         assertEquals('\n', tokener.next());
         assertEquals("JKL", tokener.nextTo("M"));
 
-        tokener = new JSONTokener("ABCDEFGHI");
+        tokener = new JSONTokener(true, "ABCDEFGHI");
         assertEquals("ABC", tokener.nextTo("DEF"));
         assertEquals("", tokener.nextTo("DEF"));
         assertEquals('D', tokener.next());
@@ -455,15 +455,15 @@ public class JSONTokenerTest extends TestCase {
         assertEquals("GHI", tokener.nextTo("DEF"));
         assertEquals("", tokener.nextTo("DEF"));
 
-        tokener = new JSONTokener(" \t \fABC \t DEF");
+        tokener = new JSONTokener(true, " \t \fABC \t DEF");
         assertEquals("ABC", tokener.nextTo("DEF"));
         assertEquals('D', tokener.next());
 
-        tokener = new JSONTokener(" \t \fABC \n DEF");
+        tokener = new JSONTokener(true, " \t \fABC \n DEF");
         assertEquals("ABC", tokener.nextTo("\n"));
         assertEquals("", tokener.nextTo("\n"));
 
-        tokener = new JSONTokener("");
+        tokener = new JSONTokener(true, "");
         try {
             tokener.nextTo(null);
             fail();
@@ -472,18 +472,18 @@ public class JSONTokenerTest extends TestCase {
     }
 
     public void testNextToTrimming() {
-        assertEquals("ABC", new JSONTokener("\t ABC \tDEF").nextTo("DE"));
-        assertEquals("ABC", new JSONTokener("\t ABC \tDEF").nextTo('D'));
+        assertEquals("ABC", new JSONTokener(true, "\t ABC \tDEF").nextTo("DE"));
+        assertEquals("ABC", new JSONTokener(true, "\t ABC \tDEF").nextTo('D'));
     }
 
     public void testNextToTrailing() {
-        assertEquals("ABC DEF", new JSONTokener("\t ABC DEF \t").nextTo("G"));
-        assertEquals("ABC DEF", new JSONTokener("\t ABC DEF \t").nextTo('G'));
+        assertEquals("ABC DEF", new JSONTokener(true, "\t ABC DEF \t").nextTo("G"));
+        assertEquals("ABC DEF", new JSONTokener(true, "\t ABC DEF \t").nextTo('G'));
     }
 
     public void testNextToDoesntStopOnNull() {
         String message = "nextTo() shouldn't stop after \\0 characters";
-        JSONTokener tokener = new JSONTokener(" \0\t \fABC \n DEF");
+        JSONTokener tokener = new JSONTokener(true, " \0\t \fABC \n DEF");
         assertEquals(message, "ABC", tokener.nextTo("D"));
         assertEquals(message, '\n', tokener.next());
         assertEquals(message, "", tokener.nextTo("D"));
@@ -491,45 +491,45 @@ public class JSONTokenerTest extends TestCase {
 
     public void testNextToConsumesNull() {
         String message = "nextTo shouldn't consume \\0.";
-        JSONTokener tokener = new JSONTokener("ABC\0DEF");
+        JSONTokener tokener = new JSONTokener(true, "ABC\0DEF");
         assertEquals(message, "ABC", tokener.nextTo("\0"));
         assertEquals(message, '\0', tokener.next());
         assertEquals(message, "DEF", tokener.nextTo("\0"));
     }
 
     public void testSkipPast() {
-        JSONTokener tokener = new JSONTokener("ABCDEF");
+        JSONTokener tokener = new JSONTokener(true, "ABCDEF");
         tokener.skipPast("ABC");
         assertEquals('D', tokener.next());
         tokener.skipPast("EF");
         assertEquals('\0', tokener.next());
 
-        tokener = new JSONTokener("ABCDEF");
+        tokener = new JSONTokener(true, "ABCDEF");
         tokener.skipPast("ABCDEF");
         assertEquals('\0', tokener.next());
 
-        tokener = new JSONTokener("ABCDEF");
+        tokener = new JSONTokener(true, "ABCDEF");
         tokener.skipPast("G");
         assertEquals('\0', tokener.next());
 
-        tokener = new JSONTokener("ABC\0ABC");
+        tokener = new JSONTokener(true, "ABC\0ABC");
         tokener.skipPast("ABC");
         assertEquals('\0', tokener.next());
         assertEquals('A', tokener.next());
 
-        tokener = new JSONTokener("\0ABC");
+        tokener = new JSONTokener(true, "\0ABC");
         tokener.skipPast("ABC");
         assertEquals('\0', tokener.next());
 
-        tokener = new JSONTokener("ABC\nDEF");
+        tokener = new JSONTokener(true, "ABC\nDEF");
         tokener.skipPast("DEF");
         assertEquals('\0', tokener.next());
 
-        tokener = new JSONTokener("ABC");
+        tokener = new JSONTokener(true, "ABC");
         tokener.skipPast("ABCDEF");
         assertEquals('\0', tokener.next());
 
-        tokener = new JSONTokener("ABCDABCDABCD");
+        tokener = new JSONTokener(true, "ABCDABCDABCD");
         tokener.skipPast("ABC");
         assertEquals('D', tokener.next());
         tokener.skipPast("ABC");
@@ -537,7 +537,7 @@ public class JSONTokenerTest extends TestCase {
         tokener.skipPast("ABC");
         assertEquals('D', tokener.next());
 
-        tokener = new JSONTokener("");
+        tokener = new JSONTokener(true, "");
         try {
             tokener.skipPast(null);
             fail();
@@ -546,7 +546,7 @@ public class JSONTokenerTest extends TestCase {
     }
 
     public void testSkipTo() {
-        JSONTokener tokener = new JSONTokener("ABCDEF");
+        JSONTokener tokener = new JSONTokener(true, "ABCDEF");
         tokener.skipTo('A');
         assertEquals('A', tokener.next());
         tokener.skipTo('D');
@@ -556,33 +556,33 @@ public class JSONTokenerTest extends TestCase {
         tokener.skipTo('A');
         assertEquals('F', tokener.next());
 
-        tokener = new JSONTokener("ABC\nDEF");
+        tokener = new JSONTokener(true, "ABC\nDEF");
         tokener.skipTo('F');
         assertEquals('F', tokener.next());
 
-        tokener = new JSONTokener("ABCfDEF");
+        tokener = new JSONTokener(true, "ABCfDEF");
         tokener.skipTo('F');
         assertEquals('F', tokener.next());
 
-        tokener = new JSONTokener("ABC/* DEF */");
+        tokener = new JSONTokener(true, "ABC/* DEF */");
         tokener.skipTo('D');
         assertEquals('D', tokener.next());
     }
 
     public void testSkipToStopsOnNull() {
-        JSONTokener tokener = new JSONTokener("ABC\0DEF");
+        JSONTokener tokener = new JSONTokener(true, "ABC\0DEF");
         tokener.skipTo('F');
         assertEquals("skipTo shouldn't stop when it sees '\\0'", 'F', tokener.next());
     }
 
     public void testBomIgnoredAsFirstCharacterOfDocument() throws JSONException {
-        JSONTokener tokener = new JSONTokener("\ufeff[]");
+        JSONTokener tokener = new JSONTokener(true, "\ufeff[]");
         JSONArray array = (JSONArray) tokener.nextValue();
         assertEquals(0, array.length());
     }
 
     public void testBomTreatedAsCharacterInRestOfDocument() throws JSONException {
-        JSONTokener tokener = new JSONTokener("[\ufeff]");
+        JSONTokener tokener = new JSONTokener(true, "[\ufeff]");
         JSONArray array = (JSONArray) tokener.nextValue();
         assertEquals(1, array.length());
     }

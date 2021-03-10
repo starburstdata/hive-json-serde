@@ -84,7 +84,7 @@ public class JsonListObjectInspector extends StandardListObjectInspector {
             return (JSONArray)data;
         } else {
             // if it's not an array, make it a one element array
-            return  new JSONArray().put(data);
+            return new JSONArray(true).put(data);
         }
     }
 

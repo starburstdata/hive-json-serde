@@ -46,7 +46,7 @@ public class JSONObjectTest {
 //        
 //     String test1 = "{ \"filename\": \"test.txt\", \"meta\": { \"datas\": { \"INFO\": { \"foo\": \"bar\" } } } }";
 //     
-//     JSONObject obj = new JSONObject(test1);
+//     JSONObject obj = new JSONObject(true, test1);
 //     
 //     assertEquals("test.txt",obj.getString("filename"));
 //     assertEquals("bar", obj.getJSONObject("meta").getJSONObject("INFO").getJSONObject("foo"));

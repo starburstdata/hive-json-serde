@@ -34,7 +34,7 @@ package com.starburstdata.openjson;
  * rethrow:
  * <pre>  public JSONArray toJSONObject() {
  *     try {
- *         JSONObject result = new JSONObject();
+ *         JSONObject result = new JSONObject(true);
  *         ...
  *     } catch (JSONException e) {
  *         throw new RuntimeException(e);

@@ -28,7 +28,7 @@ public class ParsingTest {
     @Test
     public void testParsingNoObjects() {
         try {
-            new JSONTokener("").nextValue();
+            new JSONTokener(true, "").nextValue();
             fail();
         } catch (JSONException ignored) {
         }
@@ -233,7 +233,7 @@ public class ParsingTest {
 
     private void assertParseFail(String malformedJson) {
         try {
-            new JSONTokener(malformedJson).nextValue();
+            new JSONTokener(true, malformedJson).nextValue();
             fail("Successfully parsed: \"" + malformedJson + "\"");
         } catch (JSONException ignored) {
         } catch (StackOverflowError e) {
@@ -242,11 +242,11 @@ public class ParsingTest {
     }
 
     private JSONArray array(Object... elements) {
-        return new JSONArray(Arrays.asList(elements));
+        return new JSONArray(true, Arrays.asList(elements));
     }
 
     private JSONObject object(Object... keyValuePairs) throws JSONException {
-        JSONObject result = new JSONObject();
+        JSONObject result = new JSONObject(true);
         for (int i = 0; i < keyValuePairs.length; i += 2) {
             result.put((String) keyValuePairs[i], keyValuePairs[i + 1]);
         }
@@ -254,7 +254,7 @@ public class ParsingTest {
     }
 
     private void assertParsed(String message, Object expected, String json) throws JSONException {
-        Object actual = new JSONTokener(json).nextValue();
+        Object actual = new JSONTokener(true, json).nextValue();
         actual = canonicalize(actual);
         expected = canonicalize(expected);
         assertEquals("For input \"" + json + "\" " + message, expected, actual);

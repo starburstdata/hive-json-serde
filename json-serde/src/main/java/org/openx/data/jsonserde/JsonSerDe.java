@@ -67,18 +67,19 @@ import java.util.Properties;
 public class JsonSerDe extends AbstractSerDe {
 
     public static final Log LOG = LogFactory.getLog(JsonSerDe.class);
-    List<String> columnNames;
-    List<TypeInfo> columnTypes;
-    StructTypeInfo rowTypeInfo;
-    StructObjectInspector rowObjectInspector;
-    boolean[] columnSortOrderIsDesc;
+    private List<String> columnNames;
+    private List<TypeInfo> columnTypes;
+    private StructTypeInfo rowTypeInfo;
+    private StructObjectInspector rowObjectInspector;
+    private boolean[] columnSortOrderIsDesc;
     private SerDeStats stats;
     private boolean lastOperationSerialize;
-    long deserializedDataSize;
-    long serializedDataSize;
+    private long deserializedDataSize;
+    private long serializedDataSize;
     // if set, will ignore malformed JSON in deserialization
-    boolean ignoreMalformedJson = false;
-    boolean explicitNull = false;
+    private boolean ignoreMalformedJson = false;
+    private boolean explicitNull = false;
+    private boolean isCaseInsensitive = true;
 
     // properties used in configuration
     public static final String PROP_IGNORE_MALFORMED_JSON = "ignore.malformed.json";
@@ -86,7 +87,7 @@ public class JsonSerDe extends AbstractSerDe {
     public static final String PROP_CASE_INSENSITIVE ="case.insensitive" ;
     public static final String PROP_EXPLICIT_NULL ="explicit.null" ;
 
-   JsonStructOIOptions options;
+    JsonStructOIOptions options;
 
     /**
      * Initializes the SerDe.
@@ -128,7 +129,7 @@ public class JsonSerDe extends AbstractSerDe {
                 .getStructTypeInfo(columnNames, columnTypes);
         
         // build options
-        boolean isCaseInsensitive = Boolean.parseBoolean(tbl.getProperty(PROP_CASE_INSENSITIVE, "true"));
+        isCaseInsensitive = Boolean.parseBoolean(tbl.getProperty(PROP_CASE_INSENSITIVE, "true"));
         options = new JsonStructOIOptions(getMappings(tbl, isCaseInsensitive));
         options.setCaseInsensitive(isCaseInsensitive);
 
@@ -174,16 +175,16 @@ public class JsonSerDe extends AbstractSerDe {
             String txt = rowText.toString().trim();
             
             if(txt.startsWith("{")) {
-                jObj = new JSONObject(txt);
+                jObj = new JSONObject(isCaseInsensitive, txt);
             } else if (txt.startsWith("[")){
-                jObj = new JSONArray(txt);
+                jObj = new JSONArray(isCaseInsensitive, txt);
             }
         } catch (JSONException e) {
             // If row is not a JSON object, make the whole row NULL
             onMalformedJson("Row is not a valid JSON Object - JSONException: "
                     + e.getMessage());
             try {
-                jObj = new JSONObject("{}");
+                jObj = new JSONObject(isCaseInsensitive, "{}");
             } catch (JSONException ex) {
                 onMalformedJson("Error parsing empty row. This should never happen.");
             }
@@ -258,7 +259,7 @@ public class JsonSerDe extends AbstractSerDe {
             return null;
         }
 
-        JSONObject result = new JSONObject();
+        JSONObject result = new JSONObject(isCaseInsensitive);
         
         List<? extends StructField> fields = soi.getAllStructFieldRefs();
         
@@ -372,7 +373,7 @@ public class JsonSerDe extends AbstractSerDe {
         // as higher indexes are added.
         if(obj==null) { return null; }
         
-        JSONArray ar = new JSONArray();
+        JSONArray ar = new JSONArray(isCaseInsensitive);
         for(int i=loi.getListLength(obj)-1; i>=0; i--) {
             Object element = loi.getListElement(obj, i);
             try {
@@ -404,7 +405,7 @@ public class JsonSerDe extends AbstractSerDe {
     private JSONObject serializeMap(Object obj, MapObjectInspector moi) {
         if (obj==null) { return null; }
         
-        JSONObject jo = new JSONObject();  
+        JSONObject jo = new JSONObject(isCaseInsensitive);
         Map m = moi.getMap(obj);
         
         for(Object k : m.keySet()) {
