@@ -624,8 +624,8 @@ public class JsonSerDeTest {
         StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
         Object res = serde.deserialize(new Text("{\"Time\":\"forme\",\"time\":\"foryou\"}"));
 
-        assertTrue(soi.getStructFieldData(res, soi.getStructFieldRef("time1")).equals("forme"));
-        assertTrue(soi.getStructFieldData(res, soi.getStructFieldRef("time2")).equals("foryou"));
+        assertEquals("forme", soi.getStructFieldData(res, soi.getStructFieldRef("time1")));
+        assertEquals("foryou", soi.getStructFieldData(res, soi.getStructFieldRef("time2")));
     }
 
     @Test
@@ -644,10 +644,10 @@ public class JsonSerDeTest {
         StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
         Object res = serde.deserialize(new Text("{\"col1\":\"forme\",\"col2\":{\"Time\":\"foryou\"}}"));
 
-        assertTrue(soi.getStructFieldData(res, soi.getStructFieldRef("col1")).equals("forme"));
+        assertEquals("forme", soi.getStructFieldData(res, soi.getStructFieldRef("col1")));
         StructObjectInspector soi2 = (StructObjectInspector) soi.getStructFieldRef("col2").getFieldObjectInspector();
         Object col2 = soi.getStructFieldData(res, soi.getStructFieldRef("col2"));
-        assertTrue(soi2.getStructFieldData(col2, soi2.getStructFieldRef("time1")).equals("foryou"));
+        assertEquals("foryou", soi2.getStructFieldData(col2, soi2.getStructFieldRef("time1")));
     }
 
     @Test
@@ -667,7 +667,7 @@ public class JsonSerDeTest {
         // Get the serialized json string
         String jsonStr = serde.serialize(res, soi).toString();
 
-        assertTrue(soi.getStructFieldData(res, soi.getStructFieldRef("stringCol")).equals("str"));
+        assertEquals("str", soi.getStructFieldData(res, soi.getStructFieldRef("stringCol")));
         assertNull(soi.getStructFieldData(res, soi.getStructFieldRef("nullCol")));
         assertNull(soi.getStructFieldData(res, soi.getStructFieldRef("missingCol")));
         assertEquals(jsonStr,"{\"stringCol\":\"str\"}");
@@ -694,7 +694,7 @@ public class JsonSerDeTest {
         // Get the serialized json string
         String jsonStr = serde.serialize(res, soi).toString();
 
-        assertTrue(soi.getStructFieldData(res, soi.getStructFieldRef("stringCol")).equals("str"));
+        assertEquals("str", soi.getStructFieldData(res, soi.getStructFieldRef("stringCol")));
         assertNull(soi.getStructFieldData(res, soi.getStructFieldRef("nullCol")));
         assertNull(soi.getStructFieldData(res, soi.getStructFieldRef("missingCol")));
         assertEquals(jsonStr,"{\"nullCol\":null,\"stringCol\":\"str\",\"missingCol\":null}");
@@ -721,7 +721,7 @@ public class JsonSerDeTest {
 
         StructObjectInspector structColSoi = (StructObjectInspector) soi.getStructFieldRef("structCol").getFieldObjectInspector();
         Object structCol = soi.getStructFieldData(res, soi.getStructFieldRef("structCol"));
-        assertTrue(structColSoi.getStructFieldData(structCol, structColSoi.getStructFieldRef("name")).equals("myName"));
+        assertEquals("myName", structColSoi.getStructFieldData(structCol, structColSoi.getStructFieldRef("name")));
 
         StructObjectInspector structNullColSoi = (StructObjectInspector) soi.getStructFieldRef("structNullCol").getFieldObjectInspector();
         Object structNullCol = soi.getStructFieldData(res, soi.getStructFieldRef("structNullCol"));
@@ -729,6 +729,6 @@ public class JsonSerDeTest {
 
         assertNull(soi.getStructFieldData(res, soi.getStructFieldRef("missingStructCol")));
 
-        assertEquals(jsonStr,"{\"missingStructCol\":null,\"structCol\":{\"name\":\"myName\"},\"structNullCol\":{\"name\":null}}");
+        assertEquals("{\"missingStructCol\":null,\"structCol\":{\"name\":\"myName\"},\"structNullCol\":{\"name\":null}}", jsonStr);
     }
 }
