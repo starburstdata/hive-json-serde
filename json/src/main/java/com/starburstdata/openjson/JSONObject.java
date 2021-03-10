@@ -16,6 +16,8 @@
 
 package com.starburstdata.openjson;
 
+import org.springframework.util.LinkedCaseInsensitiveMap;
+
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -119,13 +121,20 @@ public class JSONObject {
         }
     };
 
-    private final LinkedHashMap<String, Object> nameValuePairs;
+    private final Map<String, Object> nameValuePairs;
 
     /**
      * Creates a {@code JSONObject} with no name/value mappings.
      */
     public JSONObject() {
-        nameValuePairs = new LinkedHashMap<String, Object>();
+        this(JSONOptions.globalOptions.isCaseInsensitive());
+    }
+
+    /**
+     * Creates a {@code JSONObject} with no name/value mappings.
+     */
+    JSONObject(boolean caseInsensitive) {
+        nameValuePairs = caseInsensitive ? new LinkedCaseInsensitiveMap<Object>() : new LinkedHashMap<String, Object>();
     }
 
     /**

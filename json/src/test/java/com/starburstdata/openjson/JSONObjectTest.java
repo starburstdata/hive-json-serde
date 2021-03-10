@@ -138,8 +138,8 @@ public class JSONObjectTest {
     }
 
     @Test
-    public void testGet() throws JSONException {
-        JSONObject object = new JSONObject();
+    public void testGetCaseSensitive() throws JSONException {
+        JSONObject object = new JSONObject(false);
         Object value = new Object();
         object.put("foo", value);
         object.put("bar", new Object());
@@ -149,6 +149,31 @@ public class JSONObjectTest {
             object.get("FOO");
             fail();
         } catch (JSONException ignored) {
+        }
+        try {
+            object.put(null, value);
+            fail();
+        } catch (JSONException ignored) {
+        }
+        try {
+            object.get(null);
+            fail();
+        } catch (JSONException ignored) {
+        }
+    }
+
+    @Test
+    public void testGetCaseInsensitive() throws JSONException {
+        JSONObject object = new JSONObject(true);
+        Object value = new Object();
+        object.put("foo", value);
+        object.put("bar", new Object());
+        object.put("baz", new Object());
+        assertSame(value, object.get("foo"));
+        try {
+            object.get("FOO");
+        } catch (JSONException ignored) {
+            fail();
         }
         try {
             object.put(null, value);

@@ -16,6 +16,7 @@ package org.openx.data.jsonserde;
 import com.starburstdata.openjson.JSONArray;
 import com.starburstdata.openjson.JSONException;
 import com.starburstdata.openjson.JSONObject;
+import com.starburstdata.openjson.JSONOptions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -142,6 +143,8 @@ public class JsonSerDe extends AbstractSerDe {
 
         // dots in key names. Substitute with underscores
         options.setDotsInKeyNames(Boolean.parseBoolean(tbl.getProperty(PROP_DOTS_IN_KEYS,"false")));
+
+        JSONOptions.globalOptions.setCaseInsensitive(options.isCaseInsensitive());
 
         rowObjectInspector = (StructObjectInspector) JsonObjectInspectorFactory
                 .getJsonObjectInspectorFromTypeInfo(rowTypeInfo, options);
