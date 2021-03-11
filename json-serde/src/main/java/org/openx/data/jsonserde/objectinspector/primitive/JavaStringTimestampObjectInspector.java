@@ -75,8 +75,10 @@ public class JavaStringTimestampObjectInspector extends AbstractPrimitiveJavaObj
 
     @Override
     public Timestamp getPrimitiveJavaObject(Object o) {
-         if(o instanceof String) {
-           return ParsePrimitiveUtils.parseTimestamp((String)o); 
+        if(o instanceof String) {
+            return ParsePrimitiveUtils.parseTimestamp((String) o);
+        } else if(o instanceof Number) {
+            return ParsePrimitiveUtils.parseTimestamp(o.toString());
         } else {
            return (Timestamp) o;
         }

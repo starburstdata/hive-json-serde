@@ -42,7 +42,9 @@ public  class JavaStringByteObjectInspector
     @Override
     public byte get(Object o) {
         if(o instanceof String) {
-           return ParsePrimitiveUtils.parseByte((String)o); 
+            return ParsePrimitiveUtils.parseByte((String) o);
+        } else if(!(o instanceof Byte)) {
+            return ParsePrimitiveUtils.parseByte(o.toString());
         } else {
            return (Byte) o;
         }
