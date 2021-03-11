@@ -32,7 +32,7 @@ public class JavaStringFloatObjectInspector extends AbstractPrimitiveJavaObjectI
         if(o == null) return null;
         
         if(o instanceof String) {
-          return new FloatWritable(Float.parseFloat((String)o)); 
+          return new FloatWritable(Float.parseFloat((String)o));
         } else {
           return new FloatWritable((Float) o);
         }
@@ -42,7 +42,10 @@ public class JavaStringFloatObjectInspector extends AbstractPrimitiveJavaObjectI
     public float get(Object o) {  
         if(o instanceof String) {
           return Float.parseFloat((String)o); 
-        } else {
+        } if(o instanceof Double) {
+            return ((Double) o).floatValue();
+        }
+        else {
           return (Float) o;
         }
     }

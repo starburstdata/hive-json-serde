@@ -474,7 +474,7 @@ public class JsonSerDeTest {
         StructField sf = soi.getStructFieldRef("cfloat");
 	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
         JavaStringFloatObjectInspector foi = (JavaStringFloatObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(3.1415E02 , foi.get(result.get("cfloat")),0.001);
+	assertEquals(3.1415E02f , foi.get(result.get("cfloat")),0.001f);
 	
 	sf = soi.getStructFieldRef("cdouble");
 	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
