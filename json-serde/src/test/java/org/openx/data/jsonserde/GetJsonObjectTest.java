@@ -73,7 +73,7 @@ public class GetJsonObjectTest {
             .getFieldObjectInspector();
 
         UDFJson udfJson = new UDFJson();
-        Text output = udfJson.evaluate(loi.getPrimitiveJavaObject(res), "$.totalresults");
+        Text output = udfJson.evaluate(loi.getPrimitiveJavaObject(res), "$.totalResults");
         assertEquals("1", output.toString());
 
     }
