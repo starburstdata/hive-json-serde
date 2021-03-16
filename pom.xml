@@ -36,6 +36,10 @@
         <cdh5.version>5.0.0</cdh5.version>
         <cdh5.hive.version>0.12.0-cdh${cdh5.version}</cdh5.hive.version>
         <cdh5.hadoop.version>2.3.0-cdh${cdh5.version}</cdh5.hadoop.version>
+        <!-- cdh7 versions (note the numbering template change) -->
+        <cdh7.version>7.2.0.0-237</cdh7.version>
+        <cdh7.hive.version>3.1.3000.${cdh7.version}</cdh7.hive.version>
+        <cdh7.hadoop.version>3.1.1.${cdh7.version}</cdh7.hadoop.version>
         <!-- hdp23 versions -->
         <hdp23.version>2.3.0</hdp23.version>
         <hdp23.hive.version>1.2.1</hdp23.hive.version>
@@ -49,54 +53,20 @@
 
     <profiles>
         <profile>
-            <id>cdh4</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>json-serde-cdh4-shim</module>
-            </modules>
-            <properties>
-                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-                <serde.shim>json-serde-cdh4-shim</serde.shim>
-                <cdh.version>${cdh4.version}</cdh.version>
-                <cdh.hive.version>${cdh4.hive.version}</cdh.hive.version>
-                <cdh.hadoop.version>${cdh4.hadoop.version}</cdh.hadoop.version>
-                <cdh.shim>cdh4</cdh.shim>
-            </properties>
-        </profile>
-        <profile>
-            <id>cdh5</id>
+            <id>cdh7</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>json-serde-cdh5-shim</module>
+                <module>json-serde-cdh7-shim</module>
             </modules>
             <properties>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-                <serde.shim>json-serde-cdh5-shim</serde.shim>
-                <cdh.version>${cdh5.version}</cdh.version>
-                <cdh.hive.version>${cdh5.hive.version}</cdh.hive.version>
-                <cdh.hadoop.version>${cdh5.hadoop.version}</cdh.hadoop.version>
-                <cdh.shim>cdh5</cdh.shim>
-            </properties>
-        </profile>
-        <profile>
-            <id>hdp23</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>json-serde-cdh5-shim</module>
-            </modules>
-            <properties>
-                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-                <serde.shim>json-serde-cdh5-shim</serde.shim>
-                <cdh.version>${hdp23.version}</cdh.version>
-                <cdh.hive.version>${hdp23.hive.version}</cdh.hive.version>
-                <cdh.hadoop.version>${hdp23.hadoop.version}</cdh.hadoop.version>
-                <cdh.shim>cdh5</cdh.shim>
+                <serde.shim>json-serde-cdh7-shim</serde.shim>
+                <cdh.version>${cdh7.version}</cdh.version>
+                <cdh.hive.version>${cdh7.hive.version}</cdh.hive.version>
+                <cdh.hadoop.version>${cdh7.hadoop.version}</cdh.hadoop.version>
+                <cdh.shim>cdh7</cdh.shim>
             </properties>
         </profile>
     </profiles>
@@ -212,8 +182,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.0.2</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>7</source>
+                    <target>7</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>

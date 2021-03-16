@@ -12,7 +12,7 @@
 
 package org.openx.data.jsonserde.objectinspector.primitive;
 
-import org.apache.hadoop.hive.serde2.io.TimestampWritable;
+import org.apache.hadoop.hive.serde2.io.TimestampWritableV2;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.AbstractPrimitiveJavaObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.SettableTimestampObjectInspector;
 
@@ -29,60 +29,64 @@ public class JavaStringTimestampObjectInspector extends AbstractPrimitiveJavaObj
         super(TypeEntryShim.timestampType);
     }
 
-    
     @Override
     public Object set(Object o, byte[] bytes, int offset) {
         return create(bytes,offset);
     }
 
     @Override
+    @Deprecated
     public Object set(Object o, Timestamp tmstmp) {
-        return tmstmp.toString();
+        return ParsePrimitiveUtils.serializeAsUTC(tmstmp);
     }
 
     @Override
-    public Object set(Object o, TimestampWritable tw) {
+    public Object set(Object o, org.apache.hadoop.hive.common.type.Timestamp timestamp) {
+        return ParsePrimitiveUtils.serializeAsUTC(timestamp);
+    }
+
+    @Override
+    public Object set(Object o, TimestampWritableV2 tw) {
         return create(tw.getTimestamp());
     }
 
     @Override
     public Object create(byte[] bytes, int offset) {
-       return formatTimeStamp(new TimestampWritable(bytes, offset));
+       return new TimestampWritableV2(bytes, offset).toString();
     }
 
     @Override
+    @Deprecated
     public Object create(Timestamp tmstmp) {
-        return formatTimeStamp(tmstmp);
-    }
-
-    private String formatTimeStamp(Timestamp ts) {
-        return ParsePrimitiveUtils.serializeAsUTC(ts);
-    }
-    private String formatTimeStamp(TimestampWritable tsw) {
-        return formatTimeStamp(tsw.getTimestamp());
+        return ParsePrimitiveUtils.serializeAsUTC(tmstmp);
     }
 
     @Override
-    public TimestampWritable getPrimitiveWritableObject(Object o) {
+    public Object create(org.apache.hadoop.hive.common.type.Timestamp timestamp) {
+        return ParsePrimitiveUtils.serializeAsUTC(timestamp);
+    }
+
+    @Override
+    public TimestampWritableV2 getPrimitiveWritableObject(Object o) {
         if(o == null) return null;
         
         if(o instanceof String) {
-           return new TimestampWritable(ParsePrimitiveUtils.parseTimestamp((String)o)); 
+           return new TimestampWritableV2(org.apache.hadoop.hive.common.type.Timestamp.valueOf((String)o));
+        } else if (o instanceof org.apache.hadoop.hive.common.type.Timestamp) {
+          return new TimestampWritableV2((org.apache.hadoop.hive.common.type.Timestamp) o);
         } else {
-          return new TimestampWritable((Timestamp) o);
+            return (TimestampWritableV2) o;
         }
     }
 
     @Override
-    public Timestamp getPrimitiveJavaObject(Object o) {
+    public org.apache.hadoop.hive.common.type.Timestamp getPrimitiveJavaObject(Object o) {
         if(o instanceof String) {
             return ParsePrimitiveUtils.parseTimestamp((String) o);
         } else if(o instanceof Number) {
             return ParsePrimitiveUtils.parseTimestamp(o.toString());
         } else {
-           return (Timestamp) o;
+           return (org.apache.hadoop.hive.common.type.Timestamp) o;
         }
     }
-
-   
 }

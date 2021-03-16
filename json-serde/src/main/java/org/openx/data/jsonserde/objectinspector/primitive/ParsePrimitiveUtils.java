@@ -64,30 +64,33 @@ public final class ParsePrimitiveUtils {
         }
     }
 
-    static TimeZone defaultZone = TimeZone.getDefault();
     public static String serializeAsUTC(Timestamp ts) {
-        return UTC_FORMAT.format(ts.getTime() );
+        return UTC_FORMAT.format(ts.getTime());
     }
 
-    public static Timestamp parseTimestamp(String s) {
+    public static String serializeAsUTC(org.apache.hadoop.hive.common.type.Timestamp ts) {
+        return UTC_FORMAT.format(ts.toEpochMilli());
+    }
+
+    public static org.apache.hadoop.hive.common.type.Timestamp parseTimestamp(String s) {
         final String sampleUnixTimestampInMs = "1454612111000";
 
-        Timestamp value;
+        org.apache.hadoop.hive.common.type.Timestamp value;
         if (s.indexOf(':') > 0) {
-            value = Timestamp.valueOf(nonUTCFormat(s));
+            value = org.apache.hadoop.hive.common.type.Timestamp.valueOf(nonUTCFormat(s));
         } else if (s.indexOf('.') >= 0) {
             // it's a float
-            value = new Timestamp(
-                    (long) ((double) (Double.parseDouble(s) * 1000)));
+            double secondsFromEpoch = Double.parseDouble(s);
+            value = org.apache.hadoop.hive.common.type.Timestamp.ofEpochMilli((long) (secondsFromEpoch * 1_000));
         } else {
             // integer 
-            Long timestampValue = Long.parseLong(s);
-            Boolean isTimestampInMs = s.length() >= sampleUnixTimestampInMs.length();
+            long timestampValue = Long.parseLong(s);
+            boolean isTimestampInMs = s.length() >= sampleUnixTimestampInMs.length();
             if(isTimestampInMs) {
-                value = new Timestamp(timestampValue);
+                value = org.apache.hadoop.hive.common.type.Timestamp.ofEpochMilli(timestampValue);
             } else {
-                value = new Timestamp(timestampValue * 1000);
-            }            
+                value = org.apache.hadoop.hive.common.type.Timestamp.ofEpochSecond(timestampValue);
+            }
         }
         return value;
     }
