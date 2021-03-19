@@ -17,28 +17,30 @@ public class JavaStringDateObjectInspector  extends AbstractPrimitiveJavaObjectI
     }
 
     @Override
+    @Deprecated
     public Object set(Object o, Date date) {
         return date.toString();
     }
 
     @Override
     public Object set(Object o, org.apache.hadoop.hive.common.type.Date date) {
-        return date.toEpochDay();
+        return date.toString();
     }
 
     @Override
     public Object set(Object o, DateWritableV2 date) {
-        return date.getDays();
+        return date.toString();
     }
 
     @Override
-    public Object create(Date d) {
-        return d.toString();
+    @Deprecated
+    public Object create(Date date) {
+        return date.toString();
     }
 
     @Override
     public Object create(org.apache.hadoop.hive.common.type.Date date) {
-        return date.toEpochDay();
+        return date.toString();
     }
 
     @Override
@@ -61,6 +63,6 @@ public class JavaStringDateObjectInspector  extends AbstractPrimitiveJavaObjectI
         } else if (o instanceof Date) {
             return org.apache.hadoop.hive.common.type.Date.ofEpochDay((int) ((Date) o).toLocalDate().toEpochDay());
         }
-        return null;
+        return (org.apache.hadoop.hive.common.type.Date) o;
     }
 }
