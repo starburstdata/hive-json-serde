@@ -31,6 +31,7 @@ public class TypeEntryShim {
     public static PrimitiveTypeInfo shortType = TypeInfoFactory.shortTypeInfo;
     public static PrimitiveTypeInfo timestampType = TypeInfoFactory.timestampTypeInfo;
     public static PrimitiveTypeInfo stringType = TypeInfoFactory.stringTypeInfo;
+    public static PrimitiveTypeInfo binaryType = TypeInfoFactory.binaryTypeInfo;
     public static PrimitiveTypeInfo booleanType = TypeInfoFactory.booleanTypeInfo;
     public static PrimitiveTypeInfo dateType = TypeInfoFactory.dateTypeInfo;
 

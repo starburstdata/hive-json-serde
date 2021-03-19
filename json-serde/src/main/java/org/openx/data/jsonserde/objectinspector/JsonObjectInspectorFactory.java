@@ -21,6 +21,7 @@ import org.apache.hadoop.hive.serde2.typeinfo.PrimitiveTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.StructTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.UnionTypeInfo;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringBinaryObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringBooleanObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringByteObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringDateObjectInspector;
@@ -213,6 +214,7 @@ public final class JsonObjectInspectorFactory {
         primitiveOICache.put(TypeEntryShim.longType, new JavaStringLongObjectInspector());
         primitiveOICache.put(TypeEntryShim.floatType, new JavaStringFloatObjectInspector());
         primitiveOICache.put(TypeEntryShim.doubleType, new JavaStringDoubleObjectInspector());
+        primitiveOICache.put(TypeEntryShim.binaryType, new JavaStringBinaryObjectInspector());
         primitiveOICache.put(TypeEntryShim.dateType, new JavaStringDateObjectInspector());
         primitiveOICache.put(TypeEntryShim.timestampType, new JavaStringTimestampObjectInspector());
         // add the OIs that were introduced in different versions of hive
