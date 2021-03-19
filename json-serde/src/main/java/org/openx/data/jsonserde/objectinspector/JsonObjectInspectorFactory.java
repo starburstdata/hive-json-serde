@@ -15,6 +15,7 @@ package org.openx.data.jsonserde.objectinspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.AbstractPrimitiveJavaObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
+import org.apache.hadoop.hive.serde2.typeinfo.DecimalTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.ListTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.MapTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.PrimitiveTypeInfo;
@@ -25,6 +26,7 @@ import org.openx.data.jsonserde.objectinspector.primitive.JavaStringBinaryObject
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringBooleanObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringByteObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringDateObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringDecimalObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringDoubleObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringFloatObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringIntObjectInspector;
@@ -217,6 +219,7 @@ public final class JsonObjectInspectorFactory {
         primitiveOICache.put(TypeEntryShim.binaryType, new JavaStringBinaryObjectInspector());
         primitiveOICache.put(TypeEntryShim.dateType, new JavaStringDateObjectInspector());
         primitiveOICache.put(TypeEntryShim.timestampType, new JavaStringTimestampObjectInspector());
+        primitiveOICache.put(TypeEntryShim.decimalType, new JavaStringDecimalObjectInspector(TypeEntryShim.decimalType));
         // add the OIs that were introduced in different versions of hive
         TypeEntryShim.addObjectInspectors(primitiveOICache);
     }
@@ -231,7 +234,11 @@ public final class JsonObjectInspectorFactory {
      */
     public static AbstractPrimitiveJavaObjectInspector getPrimitiveJavaObjectInspector(PrimitiveTypeInfo primitiveTypeInfo) {
             if (!primitiveOICache.containsKey(primitiveTypeInfo)) {
-                primitiveOICache.put(primitiveTypeInfo, PrimitiveObjectInspectorFactory.getPrimitiveJavaObjectInspector(primitiveTypeInfo));
+                if (primitiveTypeInfo instanceof DecimalTypeInfo) {
+                    primitiveOICache.put(primitiveTypeInfo, new JavaStringDecimalObjectInspector((DecimalTypeInfo) primitiveTypeInfo));
+                } else {
+                    primitiveOICache.put(primitiveTypeInfo, PrimitiveObjectInspectorFactory.getPrimitiveJavaObjectInspector(primitiveTypeInfo));
+                }
             }
             return primitiveOICache.get(primitiveTypeInfo);
     }

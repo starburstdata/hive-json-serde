@@ -15,6 +15,7 @@ import com.starburstdata.openjson.JSONArray;
 import com.starburstdata.openjson.JSONException;
 import com.starburstdata.openjson.JSONObject;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hive.common.type.HiveDecimal;
 import org.apache.hadoop.hive.serde.serdeConstants;
 import org.apache.hadoop.hive.serde2.SerDeException;
 import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
@@ -32,6 +33,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringBooleanObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringByteObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JavaStringDecimalObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringDoubleObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringFloatObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringIntObjectInspector;
@@ -42,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -352,8 +355,8 @@ public class JsonSerDeTest {
         JsonSerDe serde = new JsonSerDe();
         Configuration conf = null;
         Properties tbl = new Properties();
-        tbl.setProperty(serdeConstants.LIST_COLUMNS, "cboolean,ctinyint,csmallint,cint,cbigint,cfloat,cdouble");
-        tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "boolean,tinyint,smallint,int,bigint,float,double");
+        tbl.setProperty(serdeConstants.LIST_COLUMNS, "cboolean,ctinyint,csmallint,cint,cbigint,cfloat,cdouble,cdecimal");
+        tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "boolean,tinyint,smallint,int,bigint,float,double,decimal(38,18)");
      
         serde.initialize(conf, tbl);
         return serde;
@@ -364,48 +367,53 @@ public class JsonSerDeTest {
         System.out.println("testNumbers");
         
         JsonSerDe serde = getNumericSerde();
-        Text line = new Text("{ cboolean:true, ctinyint:1, csmallint:200, cint:12345,cbigint:123446767687867, cfloat:3.1415, cdouble:43424234234.4243423}");
+        Text line = new Text("{ cboolean:true, ctinyint:1, csmallint:200, cint:12345,cbigint:123446767687867, cfloat:3.1415, cdouble:1.7976931348623157e+308, cdecimal:12345678901234567890.123456789012345678}");
         
-	StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
-	
-	JSONObject result = (JSONObject) serde.deserialize(line);
+        StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
+
+        JSONObject result = (JSONObject) serde.deserialize(line);
 	
         StructField sf = soi.getStructFieldRef("cboolean");
 	
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringBooleanObjectInspector);
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringBooleanObjectInspector);
         JavaStringBooleanObjectInspector jboi = (JavaStringBooleanObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(true, jboi.get(result.get("cboolean")));
-	
-	sf = soi.getStructFieldRef("ctinyint");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringByteObjectInspector);
-        JavaStringByteObjectInspector boi = (JavaStringByteObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(1, boi.get(result.get("ctinyint")));
-	
-	sf = soi.getStructFieldRef("csmallint");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringShortObjectInspector);
-        JavaStringShortObjectInspector shoi = (JavaStringShortObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(200, shoi.get(result.get("csmallint")));
-	
-	
-	sf = soi.getStructFieldRef("cint");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringIntObjectInspector);
-        JavaStringIntObjectInspector oi = (JavaStringIntObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(12345, oi.get(result.get("cint")));
-	
-	sf = soi.getStructFieldRef("cbigint");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringLongObjectInspector);
-        JavaStringLongObjectInspector bioi = (JavaStringLongObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(123446767687867L , bioi.get(result.get("cbigint")));
+        assertEquals(true, jboi.get(result.get("cboolean")));
 
-	sf = soi.getStructFieldRef("cfloat");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
+        sf = soi.getStructFieldRef("ctinyint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringByteObjectInspector);
+        JavaStringByteObjectInspector boi = (JavaStringByteObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(1, boi.get(result.get("ctinyint")));
+
+        sf = soi.getStructFieldRef("csmallint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringShortObjectInspector);
+        JavaStringShortObjectInspector shoi = (JavaStringShortObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(200, shoi.get(result.get("csmallint")));
+
+
+        sf = soi.getStructFieldRef("cint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringIntObjectInspector);
+        JavaStringIntObjectInspector oi = (JavaStringIntObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(12345, oi.get(result.get("cint")));
+
+        sf = soi.getStructFieldRef("cbigint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringLongObjectInspector);
+        JavaStringLongObjectInspector bioi = (JavaStringLongObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(123446767687867L , bioi.get(result.get("cbigint")));
+
+        sf = soi.getStructFieldRef("cfloat");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
         JavaStringFloatObjectInspector foi = (JavaStringFloatObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(3.1415 , foi.get(result.get("cfloat")),0.001);
-	
-	sf = soi.getStructFieldRef("cdouble");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
+        assertEquals(3.1415 , foi.get(result.get("cfloat")),0.001);
+
+        sf = soi.getStructFieldRef("cdouble");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
         JavaStringDoubleObjectInspector doi = (JavaStringDoubleObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(43424234234.4243423 , doi.get(result.get("cdouble")),0.001);
+        assertEquals(1.7976931348623157e+308 , doi.get(result.get("cdouble")),0.001);
+
+        sf = soi.getStructFieldRef("cdecimal");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDecimalObjectInspector);
+        JavaStringDecimalObjectInspector dbloi = (JavaStringDecimalObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(HiveDecimal.create("12345678901234567890.123456789012345678"), dbloi.getPrimitiveJavaObject(result.get("cdecimal")));
     }
     
      @Test
@@ -413,48 +421,53 @@ public class JsonSerDeTest {
         System.out.println("testNumbers");
         
         JsonSerDe serde = getNumericSerde();
-        Text line = new Text("{ cboolean:true, ctinyint:-1, csmallint:-200, cint:-12345,cbigint:-123446767687867, cfloat:-3.1415, cdouble:-43424234234.4243423}");
+        Text line = new Text("{ cboolean:true, ctinyint:-1, csmallint:-200, cint:-12345,cbigint:-123446767687867, cfloat:-3.1415, cdouble:-1.7976931348623157e+308, cdecimal:-12345678901234567890.123456789012345678}");
         
-	StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
-	
-	JSONObject result = (JSONObject) serde.deserialize(line);
+        StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
+
+        JSONObject result = (JSONObject) serde.deserialize(line);
 	
         StructField sf = soi.getStructFieldRef("cboolean");
 	
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringBooleanObjectInspector);
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringBooleanObjectInspector);
         JavaStringBooleanObjectInspector jboi = (JavaStringBooleanObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(true, jboi.get(result.get("cboolean")));
-	
-	sf = soi.getStructFieldRef("ctinyint");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringByteObjectInspector);
-        JavaStringByteObjectInspector boi = (JavaStringByteObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(-1, boi.get(result.get("ctinyint")));
-	
-	sf = soi.getStructFieldRef("csmallint");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringShortObjectInspector);
-        JavaStringShortObjectInspector shoi = (JavaStringShortObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(-200, shoi.get(result.get("csmallint")));
-	
-	
-	sf = soi.getStructFieldRef("cint");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringIntObjectInspector);
-        JavaStringIntObjectInspector oi = (JavaStringIntObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(-12345, oi.get(result.get("cint")));
-	
-	sf = soi.getStructFieldRef("cbigint");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringLongObjectInspector);
-        JavaStringLongObjectInspector bioi = (JavaStringLongObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(-123446767687867L , bioi.get(result.get("cbigint")));
+        assertEquals(true, jboi.get(result.get("cboolean")));
 
-	sf = soi.getStructFieldRef("cfloat");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
+        sf = soi.getStructFieldRef("ctinyint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringByteObjectInspector);
+        JavaStringByteObjectInspector boi = (JavaStringByteObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(-1, boi.get(result.get("ctinyint")));
+
+        sf = soi.getStructFieldRef("csmallint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringShortObjectInspector);
+        JavaStringShortObjectInspector shoi = (JavaStringShortObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(-200, shoi.get(result.get("csmallint")));
+
+
+        sf = soi.getStructFieldRef("cint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringIntObjectInspector);
+        JavaStringIntObjectInspector oi = (JavaStringIntObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(-12345, oi.get(result.get("cint")));
+
+        sf = soi.getStructFieldRef("cbigint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringLongObjectInspector);
+        JavaStringLongObjectInspector bioi = (JavaStringLongObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(-123446767687867L , bioi.get(result.get("cbigint")));
+
+        sf = soi.getStructFieldRef("cfloat");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
         JavaStringFloatObjectInspector foi = (JavaStringFloatObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(-3.1415 , foi.get(result.get("cfloat")),0.001);
-	
-	sf = soi.getStructFieldRef("cdouble");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
+        assertEquals(-3.1415 , foi.get(result.get("cfloat")),0.001);
+
+        sf = soi.getStructFieldRef("cdouble");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
         JavaStringDoubleObjectInspector doi = (JavaStringDoubleObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(-43424234234.4243423 , doi.get(result.get("cdouble")),0.001);
+        assertEquals(-1.7976931348623157e+308 , doi.get(result.get("cdouble")),0.001);
+
+        sf = soi.getStructFieldRef("cdecimal");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDecimalObjectInspector);
+        JavaStringDecimalObjectInspector dbloi = (JavaStringDecimalObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(HiveDecimal.create("-12345678901234567890.123456789012345678"), dbloi.getPrimitiveJavaObject(result.get("cdecimal")));
     }
      
      /**

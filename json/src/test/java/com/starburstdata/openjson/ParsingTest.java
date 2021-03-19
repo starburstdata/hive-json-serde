@@ -18,6 +18,7 @@ package com.starburstdata.openjson;
 
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -107,12 +108,21 @@ public class ParsingTest {
 
     @Test
     public void testParsingNumbersThatAreBestRepresentedAsDoubles() throws JSONException {
-        assertParsed(9.223372036854776E18, "9223372036854775808");
-        assertParsed(-9.223372036854776E18, "-9223372036854775809");
+        assertParsed(Double.MAX_VALUE, Double.toString(Double.MAX_VALUE));
+        assertParsed(Double.MIN_NORMAL, Double.toString(Double.MIN_NORMAL));
+        assertParsed(Double.MIN_VALUE, Double.toString(Double.MIN_VALUE));
         assertParsed(1.7976931348623157E308, "1.7976931348623157e308");
         assertParsed(2.2250738585072014E-308, "2.2250738585072014E-308");
         assertParsed(4.9E-324, "4.9E-324");
         assertParsed(4.9E-324, "4.9e-324");
+    }
+
+    @Test
+    public void testParsingNumbersThatAreBestRepresentedAsDecimals() throws JSONException {
+        assertParsed(new BigDecimal("9223372036854775808"), "9223372036854775808");
+        assertParsed(new BigDecimal("-9223372036854775809"), "-9223372036854775809");
+        assertParsed(new BigDecimal("12345678901234567890.123456789012345678"), "12345678901234567890.123456789012345678");
+        assertParsed(new BigDecimal("-12345678901234567890.123456789012345678"), "-12345678901234567890.123456789012345678");
     }
 
     @Test

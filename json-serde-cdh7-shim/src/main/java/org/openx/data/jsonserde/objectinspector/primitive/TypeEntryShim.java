@@ -13,6 +13,7 @@
 package org.openx.data.jsonserde.objectinspector.primitive;
 
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.AbstractPrimitiveJavaObjectInspector;
+import org.apache.hadoop.hive.serde2.typeinfo.DecimalTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.PrimitiveTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
 
@@ -34,6 +35,7 @@ public class TypeEntryShim {
     public static PrimitiveTypeInfo binaryType = TypeInfoFactory.binaryTypeInfo;
     public static PrimitiveTypeInfo booleanType = TypeInfoFactory.booleanTypeInfo;
     public static PrimitiveTypeInfo dateType = TypeInfoFactory.dateTypeInfo;
+    public static DecimalTypeInfo decimalType = TypeInfoFactory.decimalTypeInfo;
 
     public static void addObjectInspectors(ConcurrentHashMap<PrimitiveTypeInfo, AbstractPrimitiveJavaObjectInspector> primitiveOICache) {
     }

@@ -20,6 +20,7 @@ package com.starburstdata.openjson;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.math.BigDecimal;
 
 /**
  * Parses a JSON (<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)
@@ -350,9 +351,10 @@ public class JSONTokener {
             }
         }
 
-        /* ...next try to parse as a floating point... */
         try {
-            return Double.valueOf(literal);
+            BigDecimal asDecimal = new BigDecimal(literal);
+            Double asDouble = Double.valueOf(literal);
+            return asDecimal.compareTo(BigDecimal.valueOf(asDouble)) == 0 ? asDouble : asDecimal;
         } catch (NumberFormatException ignored) {
         }
 
