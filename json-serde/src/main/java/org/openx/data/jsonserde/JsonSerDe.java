@@ -86,6 +86,7 @@ public class JsonSerDe extends AbstractSerDe {
     public static final String PROP_DOTS_IN_KEYS = "dots.in.keys";
     public static final String PROP_CASE_INSENSITIVE ="case.insensitive" ;
     public static final String PROP_EXPLICIT_NULL ="explicit.null" ;
+    public static final String PROP_TIMESTAMP_FORMATS = "timestamp.formats";
 
     JsonStructOIOptions options;
 
@@ -143,6 +144,7 @@ public class JsonSerDe extends AbstractSerDe {
 
         // dots in key names. Substitute with underscores
         options.setDotsInKeyNames(Boolean.parseBoolean(tbl.getProperty(PROP_DOTS_IN_KEYS,"false")));
+        options.setTimestampFormats(tbl.getProperty(PROP_TIMESTAMP_FORMATS));
 
         rowObjectInspector = (StructObjectInspector) JsonObjectInspectorFactory
                 .getJsonObjectInspectorFromTypeInfo(rowTypeInfo, options);

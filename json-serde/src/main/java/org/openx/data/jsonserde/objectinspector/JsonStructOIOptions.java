@@ -12,6 +12,9 @@
 
 package org.openx.data.jsonserde.objectinspector;
 
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,12 +33,21 @@ public  class JsonStructOIOptions {
         }
         boolean caseInsensitive = true; // converts JSON keys to case sensitive
         boolean dotsInKeyNames = false;
+        String timestampFormats;
         public Map<String, String> getMappings() {
             return mappings;
         }
 
      public boolean isDotsInKeyNames() {
          return dotsInKeyNames;
+     }
+
+     public String getTimestampFormats() {
+         return timestampFormats;
+     }
+
+     public void setTimestampFormats(String timestampFormats) {
+         this.timestampFormats = timestampFormats;
      }
 
      public void setDotsInKeyNames(boolean dotsInKeyNames) {
@@ -52,6 +64,7 @@ public  class JsonStructOIOptions {
          JsonStructOIOptions that = (JsonStructOIOptions) o;
 
          if (dotsInKeyNames != that.dotsInKeyNames) return false;
+         if (timestampFormats != that.timestampFormats) return false;
          return mappings != null ? mappings.equals(that.mappings) : that.mappings == null;
 
      }
@@ -60,6 +73,7 @@ public  class JsonStructOIOptions {
      public int hashCode() {
          int result = mappings != null ? mappings.hashCode() : 0;
          result = 31 * result + (dotsInKeyNames ? 1 : 0);
+         result = 31 * result + (timestampFormats != null ? timestampFormats.hashCode() : 0);
          return result;
      }
  }

@@ -17,6 +17,12 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.AbstractPrimitive
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.SettableTimestampObjectInspector;
 
 import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A timestamp that is stored in a String
@@ -24,9 +30,22 @@ import java.sql.Timestamp;
  */
 public class JavaStringTimestampObjectInspector extends AbstractPrimitiveJavaObjectInspector
     implements SettableTimestampObjectInspector {
-    
-    public JavaStringTimestampObjectInspector() {
+
+    private List<DateTimeFormatter> timestampFormatters;
+
+    public JavaStringTimestampObjectInspector(String timestampFormats) {
         super(TypeEntryShim.timestampType);
+        this.timestampFormatters = generateFormatters(timestampFormats);
+    }
+
+    private static List<DateTimeFormatter> generateFormatters(String timestampFormats) {
+        if (timestampFormats == null) {
+            return null;
+        }
+        return Arrays.stream(timestampFormats.split(","))
+                .map(DateTimeFormatter::ofPattern)
+                .map(formatter -> formatter.withZone(ZoneOffset.UTC))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -82,9 +101,9 @@ public class JavaStringTimestampObjectInspector extends AbstractPrimitiveJavaObj
     @Override
     public org.apache.hadoop.hive.common.type.Timestamp getPrimitiveJavaObject(Object o) {
         if(o instanceof String) {
-            return ParsePrimitiveUtils.parseTimestamp((String) o);
+            return ParsePrimitiveUtils.parseTimestamp((String) o, timestampFormatters);
         } else if(o instanceof Number) {
-            return ParsePrimitiveUtils.parseTimestamp(o.toString());
+            return ParsePrimitiveUtils.parseTimestamp(o.toString(), timestampFormatters);
         } else {
            return (org.apache.hadoop.hive.common.type.Timestamp) o;
         }

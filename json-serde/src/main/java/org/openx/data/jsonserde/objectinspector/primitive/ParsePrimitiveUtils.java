@@ -7,7 +7,13 @@ package org.openx.data.jsonserde.objectinspector.primitive;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -72,27 +78,39 @@ public final class ParsePrimitiveUtils {
         return UTC_FORMAT.format(ts.toEpochMilli());
     }
 
-    public static org.apache.hadoop.hive.common.type.Timestamp parseTimestamp(String s) {
-        final String sampleUnixTimestampInMs = "1454612111000";
-
-        org.apache.hadoop.hive.common.type.Timestamp value;
-        if (s.indexOf(':') > 0) {
-            value = org.apache.hadoop.hive.common.type.Timestamp.valueOf(nonUTCFormat(s));
-        } else if (s.indexOf('.') >= 0) {
-            // it's a float
-            double secondsFromEpoch = Double.parseDouble(s);
-            value = org.apache.hadoop.hive.common.type.Timestamp.ofEpochMilli((long) (secondsFromEpoch * 1_000));
-        } else {
-            // integer 
-            long timestampValue = Long.parseLong(s);
-            boolean isTimestampInMs = s.length() >= sampleUnixTimestampInMs.length();
-            if(isTimestampInMs) {
-                value = org.apache.hadoop.hive.common.type.Timestamp.ofEpochMilli(timestampValue);
+    public static org.apache.hadoop.hive.common.type.Timestamp parseTimestamp(String s, List<DateTimeFormatter> timestampFormaters) {
+        if (timestampFormaters == null) {
+            final String sampleUnixTimestampInMs = "1454612111000";
+            org.apache.hadoop.hive.common.type.Timestamp value;
+            if (s.indexOf(':') > 0) {
+                value = org.apache.hadoop.hive.common.type.Timestamp.valueOf(nonUTCFormat(s));
+            } else if (s.indexOf('.') >= 0) {
+                // it's a float
+                double secondsFromEpoch = Double.parseDouble(s);
+                value = org.apache.hadoop.hive.common.type.Timestamp.ofEpochMilli((long) (secondsFromEpoch * 1_000));
             } else {
-                value = org.apache.hadoop.hive.common.type.Timestamp.ofEpochSecond(timestampValue);
+                // integer
+                long timestampValue = Long.parseLong(s);
+                boolean isTimestampInMs = s.length() >= sampleUnixTimestampInMs.length();
+                if (isTimestampInMs) {
+                    value = org.apache.hadoop.hive.common.type.Timestamp.ofEpochMilli(timestampValue);
+                } else {
+                    value = org.apache.hadoop.hive.common.type.Timestamp.ofEpochSecond(timestampValue);
+                }
             }
+            return value;
+        } else {
+            DateTimeParseException lastException = null;
+            for (DateTimeFormatter formatter : timestampFormaters) {
+                try {
+                    ZonedDateTime zonedDateTime = formatter.parse(s, ZonedDateTime::from);
+                    return org.apache.hadoop.hive.common.type.Timestamp.ofEpochSecond(zonedDateTime.toEpochSecond(), zonedDateTime.getNano());
+                } catch (DateTimeParseException ex) {
+                    lastException = ex;
+                }
+            }
+            throw lastException;
         }
-        return value;
     }
 
     /**

@@ -13,6 +13,7 @@
 
 package org.openx.data.jsonserde;
 
+import com.google.common.collect.ImmutableList;
 import com.starburstdata.openjson.JSONException;
 import com.starburstdata.openjson.JSONObject;
 import org.apache.hadoop.conf.Configuration;
@@ -30,6 +31,7 @@ import org.openx.data.jsonserde.objectinspector.primitive.JavaStringTimestampObj
 import org.openx.data.jsonserde.objectinspector.primitive.ParsePrimitiveUtils;
 
 import java.text.ParseException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -157,15 +159,58 @@ public class JsonSerDeTimeStampTest {
             soi.getStructFieldRef("five").getFieldObjectInspector();
     assertEquals(getDate("2013-05-06 00:58:45.123"), jstOi.getPrimitiveJavaObject(result.get("five")));
   }
-  
+
+  @Test
+  public void testTimestampDeSerializeCustomTimestampFormat() throws Exception {
+    // Test that timestamp object can be deserialized
+    Writable w = new Text("{\"one\":true,\"five\":\"2013-05-06T01:58:45.123+01:00[Europe/Paris]\"}");
+
+    JsonSerDe serde = new JsonSerDe();
+    Configuration conf = null;
+    Properties tbl = new Properties();
+    tbl.setProperty(serdeConstants.LIST_COLUMNS, "one,two,three,four,five");
+    tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "boolean,float,array<string>,string,timestamp");
+    tbl.setProperty(JsonSerDe.PROP_TIMESTAMP_FORMATS, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX'['VV']'");
+    serde.initialize(conf, tbl);
+
+    JSONObject result = (JSONObject) serde.deserialize(w);
+    StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
+    JavaStringTimestampObjectInspector jstOi = (JavaStringTimestampObjectInspector)
+            soi.getStructFieldRef("five").getFieldObjectInspector();
+    assertEquals(getDate("2013-05-06 00:58:45.123"), jstOi.getPrimitiveJavaObject(result.get("five")));
+  }
+
+  @Test
+  public void testTimestampDeSerializeMultipleCustomTimestampFormats() throws Exception {
+    // Test that timestamp object can be deserialized
+    Writable w = new Text("{\"one\":true,\"five\":\"2013-05-06T01:58:45.123+01:00[Europe/Paris]\",\"six\":\"2013-05-06 00:58:45.123\"}");
+
+    JsonSerDe serde = new JsonSerDe();
+    Configuration conf = null;
+    Properties tbl = new Properties();
+    tbl.setProperty(serdeConstants.LIST_COLUMNS, "one,two,three,four,five,six");
+    tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "boolean,float,array<string>,string,timestamp,timestamp");
+    tbl.setProperty(JsonSerDe.PROP_TIMESTAMP_FORMATS, "yyyy-MM-dd HH:mm:ss.SSS,yyyy-MM-dd'T'HH:mm:ss.SSSXXX'['VV']'");
+    serde.initialize(conf, tbl);
+
+    JSONObject result = (JSONObject) serde.deserialize(w);
+    StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
+    JavaStringTimestampObjectInspector five = (JavaStringTimestampObjectInspector)
+            soi.getStructFieldRef("five").getFieldObjectInspector();
+    JavaStringTimestampObjectInspector six = (JavaStringTimestampObjectInspector)
+            soi.getStructFieldRef("five").getFieldObjectInspector();
+    assertEquals(getDate("2013-05-06 00:58:45.123"), five.getPrimitiveJavaObject(result.get("five")));
+    assertEquals(getDate("2013-05-06 00:58:45.123"), six.getPrimitiveJavaObject(result.get("six")));
+  }
+
   /** 
    * for tests, if time zone not specified, make sure that it's in the correct
    * timezone
    */
   public static org.apache.hadoop.hive.common.type.Timestamp getDate(String s) {
-    return ParsePrimitiveUtils.parseTimestamp(s);
+    return ParsePrimitiveUtils.parseTimestamp(s, null);
   }
-  
+
   @Test
   public void testformatDateFromUTC() throws ParseException {
     System.out.println("testFormatDateFromUTC");

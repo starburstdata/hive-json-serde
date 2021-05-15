@@ -12,6 +12,7 @@
 package org.openx.data.jsonserde.objectinspector;
 
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.AbstractPrimitiveJavaObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
@@ -20,6 +21,7 @@ import org.apache.hadoop.hive.serde2.typeinfo.ListTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.MapTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.PrimitiveTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.StructTypeInfo;
+import org.apache.hadoop.hive.serde2.typeinfo.TimestampLocalTZTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.UnionTypeInfo;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringBinaryObjectInspector;
@@ -46,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class JsonObjectInspectorFactory {
 
-    static ConcurrentHashMap<TypeInfo, ObjectInspector> cachedJsonObjectInspector = new ConcurrentHashMap<>();
+    static ConcurrentHashMap<Pair<TypeInfo, JsonStructOIOptions>, ObjectInspector> cachedJsonObjectInspector = new ConcurrentHashMap<>();
 
     private JsonObjectInspectorFactory() {
         throw new InstantiationError("This class must not be instantiated.");
@@ -59,51 +61,44 @@ public final class JsonObjectInspectorFactory {
      * @param typeInfo
      * @return
      */
-    public static ObjectInspector getJsonObjectInspectorFromTypeInfo(
-            TypeInfo typeInfo, JsonStructOIOptions options) {
-        ObjectInspector result = cachedJsonObjectInspector.get(typeInfo);
+    public static ObjectInspector getJsonObjectInspectorFromTypeInfo(TypeInfo typeInfo, JsonStructOIOptions options) {
+        final Pair<TypeInfo, JsonStructOIOptions> key = Pair.of(typeInfo, options);
+        ObjectInspector result = cachedJsonObjectInspector.get(key);
         // let the factory cache the struct object inspectors since
         // their key also has some options
         if (result == null ||  typeInfo.getCategory() == ObjectInspector.Category.STRUCT) {
             switch (typeInfo.getCategory()) {
                 case PRIMITIVE: {
                     PrimitiveTypeInfo pti = (PrimitiveTypeInfo) typeInfo;
-                    result = getPrimitiveJavaObjectInspector(pti);
+                    result = getPrimitiveJavaObjectInspector(pti, options);
                     break;
                 }
                 case LIST: {
-                    ObjectInspector elementObjectInspector
-                            = getJsonObjectInspectorFromTypeInfo(
-                            ((ListTypeInfo) typeInfo).getListElementTypeInfo(),
-                            options);
-                    result = JsonObjectInspectorFactory.getJsonListObjectInspector(elementObjectInspector);
+                    ObjectInspector elementObjectInspector = getJsonObjectInspectorFromTypeInfo(((ListTypeInfo) typeInfo).getListElementTypeInfo(), options);
+                    result = JsonObjectInspectorFactory.getJsonListObjectInspector(elementObjectInspector, options);
                     break;
                 }
                 case MAP: {
                     MapTypeInfo mapTypeInfo = (MapTypeInfo) typeInfo;
                     ObjectInspector keyObjectInspector = getJsonObjectInspectorFromTypeInfo(mapTypeInfo.getMapKeyTypeInfo(), options);
                     ObjectInspector valueObjectInspector = getJsonObjectInspectorFromTypeInfo(mapTypeInfo.getMapValueTypeInfo(), options);
-                    result = JsonObjectInspectorFactory.getJsonMapObjectInspector(keyObjectInspector,
-                            valueObjectInspector);
+                    result = JsonObjectInspectorFactory.getJsonMapObjectInspector(keyObjectInspector, valueObjectInspector, options);
                     break;
                 }
                 case STRUCT: {
                     StructTypeInfo structTypeInfo = (StructTypeInfo) typeInfo;
                     List<String> fieldNames = structTypeInfo.getAllStructFieldNames();
                     List<TypeInfo> fieldTypeInfos = structTypeInfo.getAllStructFieldTypeInfos();
-                    List<ObjectInspector> fieldObjectInspectors = new ArrayList<ObjectInspector>(
-                            fieldTypeInfos.size());
+                    List<ObjectInspector> fieldObjectInspectors = new ArrayList<ObjectInspector>(fieldTypeInfos.size());
                     for (int i = 0; i < fieldTypeInfos.size(); i++) {
-                        fieldObjectInspectors.add(getJsonObjectInspectorFromTypeInfo(
-                                fieldTypeInfos.get(i), options));
+                        fieldObjectInspectors.add(getJsonObjectInspectorFromTypeInfo(fieldTypeInfos.get(i), options));
                     }
-                    result = JsonObjectInspectorFactory.getJsonStructObjectInspector(fieldNames,
-                            fieldObjectInspectors, options);
+                    result = JsonObjectInspectorFactory.getJsonStructObjectInspector(fieldNames, fieldObjectInspectors, options);
                     break;
                 }
                 case UNION:{
                     List<ObjectInspector> ois = new LinkedList<ObjectInspector>();
-                    for(  TypeInfo ti : ((UnionTypeInfo) typeInfo).getAllUnionObjectTypeInfos()) {
+                    for(TypeInfo ti : ((UnionTypeInfo) typeInfo).getAllUnionObjectTypeInfos()) {
                         ois.add(getJsonObjectInspectorFromTypeInfo(ti, options));
                     }
                     result = getJsonUnionObjectInspector(ois, options);
@@ -114,13 +109,13 @@ public final class JsonObjectInspectorFactory {
                     result = null;
                 }
             }
-            cachedJsonObjectInspector.put(typeInfo, result);
+            cachedJsonObjectInspector.put(key, result);
         }
         return result;
     }
 
 
-    static ConcurrentHashMap<ArrayList<Object>, JsonUnionObjectInspector> cachedJsonUnionObjectInspector
+    static ConcurrentHashMap<Pair<ArrayList<Object>, JsonStructOIOptions>, JsonUnionObjectInspector> cachedJsonUnionObjectInspector
             = new ConcurrentHashMap<>();
 
     public static JsonUnionObjectInspector getJsonUnionObjectInspector(
@@ -129,12 +124,11 @@ public final class JsonObjectInspectorFactory {
         ArrayList<Object> signature = new ArrayList<Object>();
         signature.add(ois);
         signature.add(options);
-        JsonUnionObjectInspector result = cachedJsonUnionObjectInspector
-                .get(signature);
+        final Pair<ArrayList<Object>, JsonStructOIOptions> key = Pair.of(signature, options);
+        JsonUnionObjectInspector result = cachedJsonUnionObjectInspector.get(key);
         if (result == null) {
             result = new JsonUnionObjectInspector(ois, options);
-            cachedJsonUnionObjectInspector.put(signature,result);
-
+            cachedJsonUnionObjectInspector.put(key, result);
         }
         return result;
     }
@@ -142,7 +136,7 @@ public final class JsonObjectInspectorFactory {
     /*
      * Caches Struct Object Inspectors
      */
-    static ConcurrentHashMap<ArrayList<Object>, JsonStructObjectInspector> cachedStandardStructObjectInspector
+    static ConcurrentHashMap<Pair<ArrayList<Object>, JsonStructOIOptions>, JsonStructObjectInspector> cachedStandardStructObjectInspector
             = new ConcurrentHashMap<>();
 
 
@@ -154,12 +148,12 @@ public final class JsonObjectInspectorFactory {
         signature.add(structFieldNames);
         signature.add(structFieldObjectInspectors);
         signature.add(options);
+        final Pair<ArrayList<Object>, JsonStructOIOptions> key = Pair.of(signature, options);
 
-        JsonStructObjectInspector result = cachedStandardStructObjectInspector.get(signature);
+        JsonStructObjectInspector result = cachedStandardStructObjectInspector.get(key);
         if (result == null) {
-            result = new JsonStructObjectInspector(structFieldNames,
-                    structFieldObjectInspectors, options);
-            cachedStandardStructObjectInspector.put(signature, result);
+            result = new JsonStructObjectInspector(structFieldNames, structFieldObjectInspectors, options);
+            cachedStandardStructObjectInspector.put(key, result);
         }
         return result;
     }
@@ -167,18 +161,19 @@ public final class JsonObjectInspectorFactory {
     /*
      * Caches the List object inspectors
      */
-    static ConcurrentHashMap<ArrayList<Object>, JsonListObjectInspector> cachedJsonListObjectInspector
+    static ConcurrentHashMap<Pair<ArrayList<Object>, JsonStructOIOptions>, JsonListObjectInspector> cachedJsonListObjectInspector
             = new ConcurrentHashMap<>();
 
     public static JsonListObjectInspector getJsonListObjectInspector(
-            ObjectInspector listElementObjectInspector) {
+            ObjectInspector listElementObjectInspector,
+            JsonStructOIOptions options) {
         ArrayList<Object> signature = new ArrayList<Object>();
         signature.add(listElementObjectInspector);
-        JsonListObjectInspector result = cachedJsonListObjectInspector
-                .get(signature);
+        final Pair<ArrayList<Object>, JsonStructOIOptions> key = Pair.of(signature, options);
+        JsonListObjectInspector result = cachedJsonListObjectInspector.get(key);
         if (result == null) {
             result = new JsonListObjectInspector(listElementObjectInspector);
-            cachedJsonListObjectInspector.put(signature, result);
+            cachedJsonListObjectInspector.put(key, result);
         }
         return result;
     }
@@ -186,43 +181,27 @@ public final class JsonObjectInspectorFactory {
     /*
      * Caches Map ObjectInspectors
      */
-    static ConcurrentHashMap<ArrayList<Object>, JsonMapObjectInspector> cachedJsonMapObjectInspector
+    static ConcurrentHashMap<Pair<ArrayList<Object>, JsonStructOIOptions>, JsonMapObjectInspector> cachedJsonMapObjectInspector
             = new ConcurrentHashMap<>();
 
     public static JsonMapObjectInspector getJsonMapObjectInspector(
             ObjectInspector mapKeyObjectInspector,
-            ObjectInspector mapValueObjectInspector) {
+            ObjectInspector mapValueObjectInspector,
+            JsonStructOIOptions options) {
         ArrayList<Object> signature = new ArrayList<Object>();
         signature.add(mapKeyObjectInspector);
         signature.add(mapValueObjectInspector);
-        JsonMapObjectInspector result = cachedJsonMapObjectInspector
-                .get(signature);
+        final Pair<ArrayList<Object>, JsonStructOIOptions> key = Pair.of(signature, options);
+        JsonMapObjectInspector result = cachedJsonMapObjectInspector.get(key);
         if (result == null) {
-            result = new JsonMapObjectInspector(mapKeyObjectInspector,
-                    mapValueObjectInspector);
-            cachedJsonMapObjectInspector.put(signature, result);
+            result = new JsonMapObjectInspector(mapKeyObjectInspector, mapValueObjectInspector);
+            cachedJsonMapObjectInspector.put(key, result);
         }
         return result;
     }
 
-    static final ConcurrentHashMap<PrimitiveTypeInfo, AbstractPrimitiveJavaObjectInspector> primitiveOICache
+    static final ConcurrentHashMap<Pair<PrimitiveTypeInfo, JsonStructOIOptions>, AbstractPrimitiveJavaObjectInspector> primitiveOICache
             = new ConcurrentHashMap<>();
-
-    static {
-        primitiveOICache.put(TypeEntryShim.booleanType, new JavaStringBooleanObjectInspector());
-        primitiveOICache.put(TypeEntryShim.byteType, new JavaStringByteObjectInspector());
-        primitiveOICache.put(TypeEntryShim.shortType, new JavaStringShortObjectInspector());
-        primitiveOICache.put(TypeEntryShim.intType, new JavaStringIntObjectInspector());
-        primitiveOICache.put(TypeEntryShim.longType, new JavaStringLongObjectInspector());
-        primitiveOICache.put(TypeEntryShim.floatType, new JavaStringFloatObjectInspector());
-        primitiveOICache.put(TypeEntryShim.doubleType, new JavaStringDoubleObjectInspector());
-        primitiveOICache.put(TypeEntryShim.binaryType, new JavaStringBinaryObjectInspector());
-        primitiveOICache.put(TypeEntryShim.dateType, new JavaStringDateObjectInspector());
-        primitiveOICache.put(TypeEntryShim.timestampType, new JavaStringTimestampObjectInspector());
-        primitiveOICache.put(TypeEntryShim.decimalType, new JavaStringDecimalObjectInspector(TypeEntryShim.decimalType));
-        // add the OIs that were introduced in different versions of hive
-        TypeEntryShim.addObjectInspectors(primitiveOICache);
-    }
 
     /**
      * gets the appropriate adapter wrapper around the object inspector if
@@ -232,15 +211,36 @@ public final class JsonObjectInspectorFactory {
      * @param primitiveTypeInfo
      * @return
      */
-    public static AbstractPrimitiveJavaObjectInspector getPrimitiveJavaObjectInspector(PrimitiveTypeInfo primitiveTypeInfo) {
-            if (!primitiveOICache.containsKey(primitiveTypeInfo)) {
-                if (primitiveTypeInfo instanceof DecimalTypeInfo) {
-                    primitiveOICache.put(primitiveTypeInfo, new JavaStringDecimalObjectInspector((DecimalTypeInfo) primitiveTypeInfo));
-                } else {
-                    primitiveOICache.put(primitiveTypeInfo, PrimitiveObjectInspectorFactory.getPrimitiveJavaObjectInspector(primitiveTypeInfo));
-                }
+    public static AbstractPrimitiveJavaObjectInspector getPrimitiveJavaObjectInspector(PrimitiveTypeInfo primitiveTypeInfo, JsonStructOIOptions options) {
+        final Pair<PrimitiveTypeInfo, JsonStructOIOptions> key = Pair.of(primitiveTypeInfo, options);
+        if (!primitiveOICache.containsKey(key)) {
+            if (primitiveTypeInfo == TypeEntryShim.booleanType) {
+                primitiveOICache.put(key, new JavaStringBooleanObjectInspector());
+            } else if (primitiveTypeInfo == TypeEntryShim.byteType) {
+                primitiveOICache.put(key, new JavaStringByteObjectInspector());
+            } else if (primitiveTypeInfo == TypeEntryShim.shortType) {
+                primitiveOICache.put(key, new JavaStringShortObjectInspector());
+            } else if (primitiveTypeInfo == TypeEntryShim.intType) {
+                primitiveOICache.put(key, new JavaStringIntObjectInspector());
+            } else if (primitiveTypeInfo == TypeEntryShim.longType) {
+                primitiveOICache.put(key, new JavaStringLongObjectInspector());
+            } else if (primitiveTypeInfo == TypeEntryShim.floatType) {
+                primitiveOICache.put(key, new JavaStringFloatObjectInspector());
+            } else if (primitiveTypeInfo == TypeEntryShim.doubleType) {
+                primitiveOICache.put(key, new JavaStringDoubleObjectInspector());
+            } else if (primitiveTypeInfo == TypeEntryShim.binaryType) {
+                primitiveOICache.put(key, new JavaStringBinaryObjectInspector());
+            } else if (primitiveTypeInfo == TypeEntryShim.dateType) {
+                primitiveOICache.put(key, new JavaStringDateObjectInspector());
+            } else if (primitiveTypeInfo == TypeEntryShim.timestampType) {
+                primitiveOICache.put(key, new JavaStringTimestampObjectInspector(options.getTimestampFormats()));
+            } else if (primitiveTypeInfo instanceof DecimalTypeInfo) {
+                primitiveOICache.put(key, new JavaStringDecimalObjectInspector((DecimalTypeInfo) primitiveTypeInfo));
+            } else {
+                primitiveOICache.put(key, PrimitiveObjectInspectorFactory.getPrimitiveJavaObjectInspector(primitiveTypeInfo));
             }
-            return primitiveOICache.get(primitiveTypeInfo);
+        }
+        return primitiveOICache.get(key);
     }
 
 

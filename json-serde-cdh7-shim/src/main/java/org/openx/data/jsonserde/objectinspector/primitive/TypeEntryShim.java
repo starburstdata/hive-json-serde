@@ -36,8 +36,4 @@ public class TypeEntryShim {
     public static PrimitiveTypeInfo booleanType = TypeInfoFactory.booleanTypeInfo;
     public static PrimitiveTypeInfo dateType = TypeInfoFactory.dateTypeInfo;
     public static DecimalTypeInfo decimalType = TypeInfoFactory.decimalTypeInfo;
-
-    public static void addObjectInspectors(ConcurrentHashMap<PrimitiveTypeInfo, AbstractPrimitiveJavaObjectInspector> primitiveOICache) {
-    }
-
 }
