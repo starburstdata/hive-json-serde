@@ -17,6 +17,7 @@ import com.starburstdata.openjson.JSONObject;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StandardStructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StructField;
+import org.openx.data.jsonserde.objectinspector.primitive.JsonStringJavaObjectInspector;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -135,7 +136,13 @@ public class JsonStructObjectInspector extends StandardStructObjectInspector {
         } catch (JSONException ex) {
             // if key does not exist
         }
-        if (fieldData == JSONObject.NULL) fieldData = null;
+        if (fieldData == JSONObject.NULL) {
+            fieldData = null;
+        }
+        if ((fieldData instanceof JSONObject || fieldData instanceof JSONArray) && fields.get(fieldID).getFieldObjectInspector() instanceof JsonStringJavaObjectInspector) {
+            JsonStringJavaObjectInspector fieldInspector = (JsonStringJavaObjectInspector) fields.get(fieldID).getFieldObjectInspector();
+            return fieldInspector.getPrimitiveJavaObject(fieldData);
+        }
         return fieldData;
     }
     

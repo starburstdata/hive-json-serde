@@ -31,12 +31,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
-
 /**
  *
  * @author rcongiu
  */
-public class NestedStructureTest {
+public class NestedStructureAsJsonStringTest {
      static JsonSerDe instance;
 
   @Before
@@ -50,14 +49,7 @@ public class NestedStructureTest {
     Properties tbl = new Properties();
     // from google video API
     tbl.setProperty(serdeConstants.LIST_COLUMNS, "kind,etag,pageInfo,v_items");
-    tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, ("string,string,"+
-                "struct<totalResults:INT,resultsPerPage:INT>," + 
-                "ARRAY<STRUCT<kind:STRING," +
-                    "etag:STRING," +
-                     "id:STRING," +
-                     "v_statistics:STRUCT<viewCount:INT,likeCount:INT,dislikeCount:INT,favoriteCount:INT,commentCount:INT>," +
-                     "topicDetails:STRUCT<topicIds:ARRAY<STRING>,relevantTopicIds:ARRAY<STRING>>" +
-                      ">>").toLowerCase());
+    tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "string,string,string,string");
     tbl.setProperty("mapping.v_items" , "items");
     tbl.setProperty("mapping.v_statistics" , "statistics");
 
@@ -65,39 +57,19 @@ public class NestedStructureTest {
   }
 
   @Test
-  public void testDeSerialize() throws Exception {
+  public void testDeSerializeJsonAsString() throws Exception {
     // Test that timestamp object can be deserialized
     Writable w = new Text("{ \"kind\": \"youtube#videoListResponse\", \"etag\": \"\\\"79S54kzisD_9SOTfQLu_0TVQSpY/mYlS4-ghMGhc1wTFCwoQl3IYDZc\\\"\", \"pageInfo\": { \"totalResults\": 1, \"resultsPerPage\": 1 }, \"items\": [ { \"kind\": \"youtube#video\", \"etag\": \"\\\"79S54kzisD_9SOTfQLu_0TVQSpY/A4foLs-VO317Po_ulY6b5mSimZA\\\"\", \"id\": \"wHkPb68dxEw\", \"statistics\": { \"viewCount\": \"9211\", \"likeCount\": \"79\", \"dislikeCount\": \"11\", \"favoriteCount\": \"0\", \"commentCount\": \"29\" }, \"topicDetails\": { \"topicIds\": [ \"/m/02mjmr\" ], \"relevantTopicIds\": [ \"/m/0cnfvd\", \"/m/01jdpf\" ] } } ] }");
 
     JSONObject result = (JSONObject) instance.deserialize(w);
-    
-    StructObjectInspector soi = (StructObjectInspector) instance.getObjectInspector();
-    
-    assertEquals("youtube#videoListResponse", soi.getStructFieldData(result, soi.getStructFieldRef("kind")));
-    assertEquals("\"79S54kzisD_9SOTfQLu_0TVQSpY/mYlS4-ghMGhc1wTFCwoQl3IYDZc\""
-                , soi.getStructFieldData(result, soi.getStructFieldRef("etag")));
-    
-    // now, the trickier fields. pageInfo
-    StructField pageInfoSF = soi.getStructFieldRef("pageinfo");
-    
-    Object pageInfo = soi.getStructFieldData(result, pageInfoSF);
-    StructObjectInspector pageInfoOI = (StructObjectInspector) pageInfoSF.getFieldObjectInspector();
-    
-    // should have only 2 elements, totalResults and ResultsPerPage
-    assertEquals(2, pageInfoOI.getAllStructFieldRefs().size());
-    
-    // now, let's check totalResults
-    StructField trSF = pageInfoOI.getStructFieldRef("totalresults");
-    Object totalResults = pageInfoOI.getStructFieldData(pageInfo, trSF);
-    
-    assertTrue(trSF.getFieldObjectInspector().getCategory() == Category.PRIMITIVE);
-    PrimitiveObjectInspector poi = (PrimitiveObjectInspector) trSF.getFieldObjectInspector();
-    assertTrue(poi.getPrimitiveCategory() == PrimitiveObjectInspector.PrimitiveCategory.INT);
-    
-    SettableIntObjectInspector sioi = (SettableIntObjectInspector) poi;
-    int value = sioi.get(totalResults);
 
-    assertEquals(1, value);
+    StructObjectInspector soi = (StructObjectInspector) instance.getObjectInspector();
+
+    assertEquals("youtube#videoListResponse", soi.getStructFieldData(result, soi.getStructFieldRef("kind")));
+    assertEquals("\"79S54kzisD_9SOTfQLu_0TVQSpY/mYlS4-ghMGhc1wTFCwoQl3IYDZc\"", soi.getStructFieldData(result, soi.getStructFieldRef("etag")));
+    assertEquals("{\"totalResults\":1,\"resultsPerPage\":1}", soi.getStructFieldData(result, soi.getStructFieldRef("pageinfo")));
+    assertEquals("[{\"kind\":\"youtube#video\",\"etag\":\"\\\"79S54kzisD_9SOTfQLu_0TVQSpY/A4foLs-VO317Po_ulY6b5mSimZA\\\"\",\"id\":\"wHkPb68dxEw\",\"statistics\":{\"viewCount\":\"9211\",\"likeCount\":\"79\",\"dislikeCount\":\"11\",\"favoriteCount\":\"0\",\"commentCount\":\"29\"},\"topicDetails\":{\"topicIds\":[\"/m/02mjmr\"],\"relevantTopicIds\":[\"/m/0cnfvd\",\"/m/01jdpf\"]}}]",
+            soi.getStructFieldData(result, soi.getStructFieldRef("v_items")));
   }
 
 }

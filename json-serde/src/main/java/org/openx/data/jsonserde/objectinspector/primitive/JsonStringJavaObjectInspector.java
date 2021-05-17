@@ -21,22 +21,21 @@ import org.apache.hadoop.io.Text;
  * and treat them as strings. 
  * @author rcongiu
  */
-public class JsonStringJavaObjectInspector extends
-    AbstractPrimitiveJavaObjectInspector implements
-    SettableStringObjectInspector {
+public class JsonStringJavaObjectInspector extends AbstractPrimitiveJavaObjectInspector
+        implements SettableStringObjectInspector {
 
-  JsonStringJavaObjectInspector() {
+  public JsonStringJavaObjectInspector() {
     super(TypeEntryShim.stringType);
   }
 
   @Override
   public Text getPrimitiveWritableObject(Object o) {
-    return o == null ? null : new Text((String) o.toString());
+    return o == null ? null : new Text(o.toString());
   }
 
   @Override
   public String getPrimitiveJavaObject(Object o) {
-    return (String) o.toString();
+    return o == null ? null : o.toString();
   }
 
   @Override
@@ -51,12 +50,12 @@ public class JsonStringJavaObjectInspector extends
 
   @Override
   public Object create(String value) {
-    return value;
+    return value == null ? null : value;
   }
 
   @Override
   public Object set(Object o, String value) {
-    return value;
+    return value == null ? null : value;
   }
     
 }

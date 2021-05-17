@@ -35,6 +35,7 @@ import org.openx.data.jsonserde.objectinspector.primitive.JavaStringIntObjectIns
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringLongObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringShortObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringTimestampObjectInspector;
+import org.openx.data.jsonserde.objectinspector.primitive.JsonStringJavaObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.TypeEntryShim;
 
 import java.util.ArrayList;
@@ -232,6 +233,8 @@ public final class JsonObjectInspectorFactory {
                 primitiveOICache.put(key, new JavaStringBinaryObjectInspector());
             } else if (primitiveTypeInfo == TypeEntryShim.dateType) {
                 primitiveOICache.put(key, new JavaStringDateObjectInspector());
+            } else if (primitiveTypeInfo == TypeEntryShim.stringType) {
+                primitiveOICache.put(key, new JsonStringJavaObjectInspector());
             } else if (primitiveTypeInfo == TypeEntryShim.timestampType) {
                 primitiveOICache.put(key, new JavaStringTimestampObjectInspector(options.getTimestampFormats()));
             } else if (primitiveTypeInfo instanceof DecimalTypeInfo) {
