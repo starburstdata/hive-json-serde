@@ -16,8 +16,6 @@
 
 package com.starburstdata.openjson;
 
-import org.springframework.util.LinkedCaseInsensitiveMap;
-
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
