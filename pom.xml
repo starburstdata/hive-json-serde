@@ -3,7 +3,7 @@
 
     <groupId>io.starburst.openx.data</groupId>
     <artifactId>json-serde-parent</artifactId>
-    <version>1.3.9-e-SNAPSHOT</version>
+    <version>1.3.9-e.3</version>
     <packaging>pom</packaging>
 
     <name>openx-json-serde</name>
@@ -27,7 +27,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-        <openjson.version>1.8-e.2-SNAPSHOT</openjson.version>
+        <openjson.version>1.8-e.3</openjson.version>
         <hadoop.dependency>hadoop-common</hadoop.dependency>
 
         <!-- cdh7 versions -->
