@@ -45,22 +45,29 @@ public class JavaStringDateObjectInspector  extends AbstractPrimitiveJavaObjectI
 
     @Override
     public DateWritableV2 getPrimitiveWritableObject(Object o) {
-        if(o == null) return null;
+        if (o == null) return null;
 
-        if(o instanceof String) {
+        if (o instanceof String) {
             return new DateWritableV2(org.apache.hadoop.hive.common.type.Date.valueOf((String)o));
-        } else {
+        }
+        if (o instanceof Integer) {
             return new DateWritableV2((Integer) o);
         }
+        if (o instanceof Date) {
+            return new DateWritableV2(org.apache.hadoop.hive.common.type.Date.ofEpochDay((int) ((Date) o).toLocalDate().toEpochDay()));
+        }
+        return new DateWritableV2((org.apache.hadoop.hive.common.type.Date) o);
     }
 
     @Override
     public org.apache.hadoop.hive.common.type.Date getPrimitiveJavaObject(Object o) {
-        if(o instanceof String) {
+        if (o instanceof String) {
            return org.apache.hadoop.hive.common.type.Date.valueOf((String)o);
-        } else if (o instanceof Integer) {
+        }
+        if (o instanceof Integer) {
             return org.apache.hadoop.hive.common.type.Date.ofEpochDay((Integer) o);
-        } else if (o instanceof Date) {
+        }
+        if (o instanceof Date) {
             return org.apache.hadoop.hive.common.type.Date.ofEpochDay((int) ((Date) o).toLocalDate().toEpochDay());
         }
         return (org.apache.hadoop.hive.common.type.Date) o;

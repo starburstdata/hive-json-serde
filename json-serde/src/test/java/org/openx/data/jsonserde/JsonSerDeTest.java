@@ -45,6 +45,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -57,7 +58,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- *
  * @author rcongiu
  */
 public class JsonSerDeTest {
@@ -81,7 +81,7 @@ public class JsonSerDeTest {
     @After
     public void tearDown() {
     }
-    
+
     public void initialize(JsonSerDe instance) throws Exception {
         System.out.println("initialize");
 
@@ -92,8 +92,8 @@ public class JsonSerDeTest {
 
         instance.initialize(conf, tbl);
     }
-    
-     public void initialize2(JsonSerDe instance) throws Exception {
+
+    public void initialize2(JsonSerDe instance) throws Exception {
         System.out.println("initialize");
 
         Configuration conf = null;
@@ -103,58 +103,58 @@ public class JsonSerDeTest {
 
         instance.initialize(conf, tbl);
     }
-    
+
 
     /**
      * Test of deserialize method, of class JsonSerDe.
      * expects  "one,two,three,four"
-     *    "boolean,float,array&lt;string&gt;,string");
+     * "boolean,float,array&lt;string&gt;,string");
      */
     @Test
     public void testDeserializeArray() throws Exception {
         JsonSerDe instance = new JsonSerDe();
         initialize(instance);
-        
+
         System.out.println("deserialize");
         Writable w = new Text("[true,19.5, [\"red\",\"yellow\",\"orange\"],\"poop\"]");
 
-        Object result =  instance.deserialize(w);
+        Object result = instance.deserialize(w);
         assertTrue(result instanceof JSONArray);
-        
-        StructObjectInspector soi = (StructObjectInspector)instance.getObjectInspector();
-        
+
+        StructObjectInspector soi = (StructObjectInspector) instance.getObjectInspector();
+
         assertEquals(Boolean.TRUE, soi.getStructFieldData(result, soi.getStructFieldRef("one")));
-        
+
         JavaStringFloatObjectInspector jsfOi = (JavaStringFloatObjectInspector) soi.getStructFieldRef("two").getFieldObjectInspector();
         assertTrue(19.5 == jsfOi.get(soi.getStructFieldData(result, soi.getStructFieldRef("two"))));
-        
+
         Object ar = soi.getStructFieldData(result, soi.getStructFieldRef("three"));
         assertTrue(ar instanceof JSONArray);
-        
-        JSONArray jar = (JSONArray)ar;
-        assertTrue( jar.get(0) instanceof String );
+
+        JSONArray jar = (JSONArray) ar;
+        assertTrue(jar.get(0) instanceof String);
         assertEquals("red", jar.get(0));
-        
+
     }
-    
-     /**
+
+    /**
      * Test of deserialize method, but passing an array.
      */
     @Test
     public void testDeserialize() throws Exception {
         JsonSerDe instance = new JsonSerDe();
         initialize(instance);
-        
+
         System.out.println("deserialize");
         Writable w = new Text("{\"one\":true,\"three\":[\"red\",\"yellow\",\"orange\"],\"two\":19.5,\"four\":\"poop\"}");
 
         JSONObject result = (JSONObject) instance.deserialize(w);
-        assertEquals("poop",result.get("four"));
+        assertEquals("poop", result.get("four"));
         assertTrue(result.get("three") instanceof JSONArray);
-        
-        assertTrue( ((JSONArray)result.get("three")).get(0) instanceof String );
-        assertEquals("red", ((JSONArray)result.get("three")).get(0));
-        
+
+        assertTrue(((JSONArray) result.get("three")).get(0) instanceof String);
+        assertEquals("red", ((JSONArray) result.get("three")).get(0));
+
     }
 
     //   {"one":true,"three":["red","yellow",["blue","azure","cobalt","teal"],"orange"],"two":19.5,"four":"poop"}
@@ -162,7 +162,7 @@ public class JsonSerDeTest {
     public void testDeserialize2() throws Exception {
         JsonSerDe instance = new JsonSerDe();
         initialize(instance);
-        
+
         Writable w = new Text("{\"one\":true,\"three\":[\"red\",\"yellow\",[\"blue\",\"azure\",\"cobalt\",\"teal\"],\"orange\"],\"two\":19.5,\"four\":\"poop\"}");
 
         JSONObject result = (JSONObject) instance.deserialize(w);
@@ -172,54 +172,54 @@ public class JsonSerDeTest {
 
         assertTrue(((JSONArray) result.get("three")).get(0) instanceof String);
         assertEquals("red", ((JSONArray) result.get("three")).get(0));
-	
+
     }
-    
-    
-        /**
+
+
+    /**
      * Test of deserialize method, of class JsonSerDe.
      */
     @Test
     public void testDeserializeNull() throws Exception {
         JsonSerDe instance = new JsonSerDe();
         initialize(instance);
-        
+
         System.out.println("deserializeNull");
         Writable w = new Text("{\"one\":true,\"three\":[\"red\",\"yellow\",\"orange\", null],\"two\":null,\"four\":null}");
 
         StructObjectInspector soi = (StructObjectInspector) instance.getObjectInspector();
         JSONObject result = (JSONObject) instance.deserialize(w);
         assertTrue(JSONObject.NULL == result.get("four"));
-        
+
         assertEquals(null, soi.getStructFieldData(result, soi.getStructFieldRef("four")));
-	
-	// same on number
-	Object res = soi.getStructFieldData(result, soi.getStructFieldRef("two"));
-	
-	assertNull(res);
-       
-	// get the array
-	res = soi.getStructFieldData(result, soi.getStructFieldRef("three"));
-	ListObjectInspector loi = (ListObjectInspector) soi.getStructFieldRef("three").getFieldObjectInspector();
-        
-	// get the 4th element
-	Object el = loi.getListElement(res, 3);
-	StringObjectInspector elOi = (StringObjectInspector) loi.getListElementObjectInspector();
-	String sres = elOi.getPrimitiveJavaObject(el);
-	assertNull(sres);
-        
+
+        // same on number
+        Object res = soi.getStructFieldData(result, soi.getStructFieldRef("two"));
+
+        assertNull(res);
+
+        // get the array
+        res = soi.getStructFieldData(result, soi.getStructFieldRef("three"));
+        ListObjectInspector loi = (ListObjectInspector) soi.getStructFieldRef("three").getFieldObjectInspector();
+
+        // get the 4th element
+        Object el = loi.getListElement(res, 3);
+        StringObjectInspector elOi = (StringObjectInspector) loi.getListElementObjectInspector();
+        String sres = elOi.getPrimitiveJavaObject(el);
+        assertNull(sres);
+
         List all = loi.getList(res);
         assertEquals(4, all.size());
         assertNull(all.get(3));
         assertEquals("red", all.get(0));
-	
+
     }
-    
+
     @Test
     public void testDeserialize2Initializations() throws Exception {
         JsonSerDe instance = new JsonSerDe();
         initialize(instance);
-        
+
         Writable w = new Text("{\"one\":true,\"three\":[\"red\",\"yellow\",[\"blue\",\"azure\",\"cobalt\",\"teal\"],\"orange\"],\"two\":19.5,\"four\":\"poop\"}");
 
         JSONObject result = (JSONObject) instance.deserialize(w);
@@ -229,10 +229,10 @@ public class JsonSerDeTest {
 
         assertTrue(((JSONArray) result.get("three")).get(0) instanceof String);
         assertEquals(((JSONArray) result.get("three")).get(0), "red");
-        
+
         // second initialization, new column
         initialize2(instance);
-        
+
         result = (JSONObject) instance.deserialize(w);
         assertEquals(result.get("four"), "poop");
 
@@ -241,20 +241,20 @@ public class JsonSerDeTest {
         assertTrue(((JSONArray) result.get("three")).get(0) instanceof String);
         assertEquals(((JSONArray) result.get("three")).get(0), "red");
     }
-    
+
 
     @Test
     public void testDeserializePartialFieldSet() throws Exception {
-      Writable w = new Text("{\"missing\":\"whocares\",\"one\":true,\"three\":[\"red\",\"yellow\",[\"blue\",\"azure\",\"cobalt\",\"teal\"],\"orange\"],\"two\":19.5,\"four\":\"poop\"}");
-      JsonSerDe instance = new JsonSerDe();
-      initialize(instance);
-      JSONObject result = (JSONObject) instance.deserialize(w);
-      assertEquals(result.get("four"),"poop");
+        Writable w = new Text("{\"missing\":\"whocares\",\"one\":true,\"three\":[\"red\",\"yellow\",[\"blue\",\"azure\",\"cobalt\",\"teal\"],\"orange\"],\"two\":19.5,\"four\":\"poop\"}");
+        JsonSerDe instance = new JsonSerDe();
+        initialize(instance);
+        JSONObject result = (JSONObject) instance.deserialize(w);
+        assertEquals(result.get("four"), "poop");
 
-      assertTrue( result.get("three") instanceof JSONArray);
+        assertTrue(result.get("three") instanceof JSONArray);
 
-      assertTrue( ((JSONArray)result.get("three")).get(0) instanceof String );
-      assertEquals( ((JSONArray)result.get("three")).get(0),"red");
+        assertTrue(((JSONArray) result.get("three")).get(0) instanceof String);
+        assertEquals(((JSONArray) result.get("three")).get(0), "red");
     }
 
     /**
@@ -264,7 +264,7 @@ public class JsonSerDeTest {
     public void testGetSerializedClass() throws Exception {
         JsonSerDe instance = new JsonSerDe();
         initialize(instance);
-        
+
         System.out.println("getSerializedClass");
         Class expResult = Text.class;
         Class result = instance.getSerializedClass();
@@ -277,10 +277,10 @@ public class JsonSerDeTest {
      */
     public void testSerialize() throws SerDeException, JSONException, Exception {
         System.out.println("serialize");
-        
+
         JsonSerDe instance = new JsonSerDe();
         initialize(instance);
-        
+
         ArrayList<Object> row = new ArrayList<Object>(5);
 
         List<ObjectInspector> lOi = new LinkedList<ObjectInspector>();
@@ -304,7 +304,7 @@ public class JsonSerDeTest {
         fieldNames.add("alist");
         lOi.add(ObjectInspectorFactory.getStandardListObjectInspector(
                 ObjectInspectorFactory.getReflectionObjectInspector(String.class,
-                ObjectInspectorFactory.ObjectInspectorOptions.JAVA)));
+                        ObjectInspectorFactory.ObjectInspectorOptions.JAVA)));
 
         Map<String, String> m = new HashMap<String, String>();
         m.put("k1", "v1");
@@ -314,9 +314,9 @@ public class JsonSerDeTest {
         fieldNames.add("amap");
         lOi.add(ObjectInspectorFactory.getStandardMapObjectInspector(
                 ObjectInspectorFactory.getReflectionObjectInspector(String.class,
-                ObjectInspectorFactory.ObjectInspectorOptions.JAVA),
+                        ObjectInspectorFactory.ObjectInspectorOptions.JAVA),
                 ObjectInspectorFactory.getReflectionObjectInspector(String.class,
-                ObjectInspectorFactory.ObjectInspectorOptions.JAVA)));
+                        ObjectInspectorFactory.ObjectInspectorOptions.JAVA)));
 
 
         StructObjectInspector soi = ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, lOi);
@@ -334,8 +334,8 @@ public class JsonSerDeTest {
         System.out.println("Serialized to " + result.toString());
 
     }
-    
-    
+
+
     public JsonSerDe getMappedSerde() throws SerDeException {
         System.out.println("testMapping");
         JsonSerDe serde = new JsonSerDe();
@@ -349,32 +349,41 @@ public class JsonSerDeTest {
         serde.initialize(conf, tbl);
         return serde;
     }
-    
+
     public JsonSerDe getNumericSerde() throws SerDeException {
-        System.out.println("testMapping");
+        System.out.println("getNumericSerde");
         JsonSerDe serde = new JsonSerDe();
         Configuration conf = null;
         Properties tbl = new Properties();
         tbl.setProperty(serdeConstants.LIST_COLUMNS, "cboolean,ctinyint,csmallint,cint,cbigint,cfloat,cdouble,cdecimal");
         tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "boolean,tinyint,smallint,int,bigint,float,double,decimal(38,18)");
-     
+
         serde.initialize(conf, tbl);
         return serde;
     }
-    
+
     @Test
     public void testNumbers() throws SerDeException, JSONException {
         System.out.println("testNumbers");
-        
+
         JsonSerDe serde = getNumericSerde();
-        Text line = new Text("{ cboolean:true, ctinyint:1, csmallint:200, cint:12345,cbigint:123446767687867, cfloat:3.1415, cdouble:1.7976931348623157e+308, cdecimal:12345678901234567890.123456789012345678}");
-        
+        Text line = new Text("{" +
+                "cboolean:true," +
+                "ctinyint:1," +
+                "csmallint:200," +
+                "cint:12345," +
+                "cbigint:123446767687867," +
+                "cfloat:" + Math.PI + "," +
+                "cdouble:" + Math.E + "," +
+                "cdecimal:12345678901234567890.123456789012345678" +
+                "}");
+
         StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
 
         JSONObject result = (JSONObject) serde.deserialize(line);
-	
+
         StructField sf = soi.getStructFieldRef("cboolean");
-	
+
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringBooleanObjectInspector);
         JavaStringBooleanObjectInspector jboi = (JavaStringBooleanObjectInspector) sf.getFieldObjectInspector();
         assertEquals(true, jboi.get(result.get("cboolean")));
@@ -398,37 +407,45 @@ public class JsonSerDeTest {
         sf = soi.getStructFieldRef("cbigint");
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringLongObjectInspector);
         JavaStringLongObjectInspector bioi = (JavaStringLongObjectInspector) sf.getFieldObjectInspector();
-        assertEquals(123446767687867L , bioi.get(result.get("cbigint")));
+        assertEquals(123446767687867L, bioi.get(result.get("cbigint")));
 
         sf = soi.getStructFieldRef("cfloat");
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
         JavaStringFloatObjectInspector foi = (JavaStringFloatObjectInspector) sf.getFieldObjectInspector();
-        assertEquals(3.1415 , foi.get(result.get("cfloat")),0.001);
+        assertEquals((float) Math.PI, foi.get(result.get("cfloat")), 0f);
 
         sf = soi.getStructFieldRef("cdouble");
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
         JavaStringDoubleObjectInspector doi = (JavaStringDoubleObjectInspector) sf.getFieldObjectInspector();
-        assertEquals(1.7976931348623157e+308 , doi.get(result.get("cdouble")),0.001);
+        assertEquals(Math.E, doi.get(result.get("cdouble")), 0);
 
         sf = soi.getStructFieldRef("cdecimal");
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDecimalObjectInspector);
         JavaStringDecimalObjectInspector dbloi = (JavaStringDecimalObjectInspector) sf.getFieldObjectInspector();
         assertEquals(HiveDecimal.create("12345678901234567890.123456789012345678"), dbloi.getPrimitiveJavaObject(result.get("cdecimal")));
     }
-    
-     @Test
+
+    @Test
     public void testNegativeNumbers() throws SerDeException, JSONException {
-        System.out.println("testNumbers");
-        
+        System.out.println("testNegativeNumbers");
+
         JsonSerDe serde = getNumericSerde();
-        Text line = new Text("{ cboolean:true, ctinyint:-1, csmallint:-200, cint:-12345,cbigint:-123446767687867, cfloat:-3.1415, cdouble:-1.7976931348623157e+308, cdecimal:-12345678901234567890.123456789012345678}");
-        
+        Text line = new Text("{" +
+                "cboolean:true," +
+                "ctinyint:-1," +
+                "csmallint:-200," +
+                "cint:-12345," +
+                "cbigint:-123446767687867," +
+                "cfloat:-" + Math.PI + "," +
+                "cdouble:-" + Math.E + "," +
+                "cdecimal:-12345678901234567890.123456789012345678" +
+                "}");
         StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
 
         JSONObject result = (JSONObject) serde.deserialize(line);
-	
+
         StructField sf = soi.getStructFieldRef("cboolean");
-	
+
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringBooleanObjectInspector);
         JavaStringBooleanObjectInspector jboi = (JavaStringBooleanObjectInspector) sf.getFieldObjectInspector();
         assertEquals(true, jboi.get(result.get("cboolean")));
@@ -443,7 +460,6 @@ public class JsonSerDeTest {
         JavaStringShortObjectInspector shoi = (JavaStringShortObjectInspector) sf.getFieldObjectInspector();
         assertEquals(-200, shoi.get(result.get("csmallint")));
 
-
         sf = soi.getStructFieldRef("cint");
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringIntObjectInspector);
         JavaStringIntObjectInspector oi = (JavaStringIntObjectInspector) sf.getFieldObjectInspector();
@@ -452,172 +468,446 @@ public class JsonSerDeTest {
         sf = soi.getStructFieldRef("cbigint");
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringLongObjectInspector);
         JavaStringLongObjectInspector bioi = (JavaStringLongObjectInspector) sf.getFieldObjectInspector();
-        assertEquals(-123446767687867L , bioi.get(result.get("cbigint")));
+        assertEquals(-123446767687867L, bioi.get(result.get("cbigint")));
 
         sf = soi.getStructFieldRef("cfloat");
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
         JavaStringFloatObjectInspector foi = (JavaStringFloatObjectInspector) sf.getFieldObjectInspector();
-        assertEquals(-3.1415 , foi.get(result.get("cfloat")),0.001);
+        assertEquals(-((float) Math.PI), foi.get(result.get("cfloat")), 0f);
 
         sf = soi.getStructFieldRef("cdouble");
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
         JavaStringDoubleObjectInspector doi = (JavaStringDoubleObjectInspector) sf.getFieldObjectInspector();
-        assertEquals(-1.7976931348623157e+308 , doi.get(result.get("cdouble")),0.001);
+        assertEquals(-Math.E, doi.get(result.get("cdouble")), 0);
 
         sf = soi.getStructFieldRef("cdecimal");
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDecimalObjectInspector);
         JavaStringDecimalObjectInspector dbloi = (JavaStringDecimalObjectInspector) sf.getFieldObjectInspector();
         assertEquals(HiveDecimal.create("-12345678901234567890.123456789012345678"), dbloi.getPrimitiveJavaObject(result.get("cdecimal")));
     }
-     
-     /**
-      * Test scientific notation
-      */
-     @Test
-    public void testENotationNumbers() throws SerDeException, JSONException {
-        System.out.println("testNumbers");
-        
+
+    @Test
+    public void testNarrowerTypeNumbers() throws SerDeException, JSONException {
+        System.out.println("testNarrowerTypeNumbers");
+
         JsonSerDe serde = getNumericSerde();
-        Text line = new Text("{ cfloat:3.1415E02, cdouble:-1.65788E-12}");
-        
-	StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
-	
-	JSONObject result = (JSONObject) serde.deserialize(line);
-	
-        StructField sf = soi.getStructFieldRef("cfloat");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
+        Text line = new Text("{" +
+                "cboolean:true," +
+                "ctinyint:1," +
+                "csmallint:1," +
+                "cint:1," +
+                "cbigint:1," +
+                "cfloat:0.5," +
+                "cdouble:0.5," +
+                "cdecimal:0.5" +
+                "}");
+
+        StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
+
+        JSONObject result = (JSONObject) serde.deserialize(line);
+
+        StructField sf = soi.getStructFieldRef("cboolean");
+
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringBooleanObjectInspector);
+        JavaStringBooleanObjectInspector jboi = (JavaStringBooleanObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(true, jboi.get(result.get("cboolean")));
+
+        sf = soi.getStructFieldRef("ctinyint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringByteObjectInspector);
+        JavaStringByteObjectInspector boi = (JavaStringByteObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(1, boi.get(result.get("ctinyint")));
+
+        sf = soi.getStructFieldRef("csmallint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringShortObjectInspector);
+        JavaStringShortObjectInspector shoi = (JavaStringShortObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(1, shoi.get(result.get("csmallint")));
+
+        sf = soi.getStructFieldRef("cint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringIntObjectInspector);
+        JavaStringIntObjectInspector oi = (JavaStringIntObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(1, oi.get(result.get("cint")));
+
+        sf = soi.getStructFieldRef("cbigint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringLongObjectInspector);
+        JavaStringLongObjectInspector bioi = (JavaStringLongObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(1L, bioi.get(result.get("cbigint")));
+
+        sf = soi.getStructFieldRef("cfloat");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
         JavaStringFloatObjectInspector foi = (JavaStringFloatObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(3.1415E02f , foi.get(result.get("cfloat")),0.001f);
-	
-	sf = soi.getStructFieldRef("cdouble");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
+        assertEquals(0.5f, foi.get(result.get("cfloat")), 0f);
+
+        sf = soi.getStructFieldRef("cdouble");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
         JavaStringDoubleObjectInspector doi = (JavaStringDoubleObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(-1.65788E-12 , doi.get(result.get("cdouble")),0.001);
+        assertEquals(0.5, doi.get(result.get("cdouble")), 0);
+
+        sf = soi.getStructFieldRef("cdecimal");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDecimalObjectInspector);
+        JavaStringDecimalObjectInspector dbloi = (JavaStringDecimalObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(HiveDecimal.create("0.5"), dbloi.getPrimitiveJavaObject(result.get("cdecimal")));
     }
-    
-    
-    
+
+    @Test
+    public void testOverflowingNumbers() throws SerDeException, JSONException {
+        System.out.println("testOverflowingNumbers");
+
+        JsonSerDe serde = getNumericSerde();
+        Text line = new Text("{" +
+                "ctinyint:" + BigInteger.valueOf(Byte.MAX_VALUE).add(BigInteger.ONE) + "," +
+                "csmallint:" + BigInteger.valueOf(Short.MAX_VALUE).add(BigInteger.ONE) + "," +
+                "cint:" + BigInteger.valueOf(Integer.MAX_VALUE).add(BigInteger.ONE) + "," +
+                "cbigint:" + BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE) + "," +
+                "cfloat:" + BigDecimal.valueOf(Float.MAX_VALUE).multiply(BigDecimal.TEN) + "," +
+                "cdouble:" + BigDecimal.valueOf(Double.MAX_VALUE).multiply(BigDecimal.TEN) +
+                "}");
+
+        StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
+
+        JSONObject result = (JSONObject) serde.deserialize(line);
+
+        StructField sf = soi.getStructFieldRef("ctinyint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringByteObjectInspector);
+        JavaStringByteObjectInspector boi = (JavaStringByteObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(Byte.MIN_VALUE, boi.get(result.get("ctinyint")));
+
+        sf = soi.getStructFieldRef("csmallint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringShortObjectInspector);
+        JavaStringShortObjectInspector shoi = (JavaStringShortObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(Short.MIN_VALUE, shoi.get(result.get("csmallint")));
+
+        sf = soi.getStructFieldRef("cint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringIntObjectInspector);
+        JavaStringIntObjectInspector oi = (JavaStringIntObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(Integer.MIN_VALUE, oi.get(result.get("cint")));
+
+        sf = soi.getStructFieldRef("cbigint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringLongObjectInspector);
+        JavaStringLongObjectInspector bioi = (JavaStringLongObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(Long.MIN_VALUE, bioi.get(result.get("cbigint")));
+
+        sf = soi.getStructFieldRef("cfloat");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
+        JavaStringFloatObjectInspector foi = (JavaStringFloatObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(Float.POSITIVE_INFINITY, foi.get(result.get("cfloat")), 0f);
+
+        sf = soi.getStructFieldRef("cdouble");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
+        JavaStringDoubleObjectInspector doi = (JavaStringDoubleObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(Double.POSITIVE_INFINITY, doi.get(result.get("cdouble")), 0);
+    }
+
+    @Test
+    public void testOverflowingNegativeNumbers() throws SerDeException, JSONException {
+        System.out.println("testOverflowingNegativeNumbers");
+
+        JsonSerDe serde = getNumericSerde();
+        Text line = new Text("{" +
+                "ctinyint:" + BigInteger.valueOf(Byte.MIN_VALUE).subtract(BigInteger.ONE) + "," +
+                "csmallint:" + BigInteger.valueOf(Short.MIN_VALUE).subtract(BigInteger.ONE) + "," +
+                "cint:" + BigInteger.valueOf(Integer.MIN_VALUE).subtract(BigInteger.ONE) + "," +
+                "cbigint:" + BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.ONE) + "," +
+                "cfloat:" + BigDecimal.valueOf(Float.MAX_VALUE).negate().multiply(BigDecimal.TEN) + "," +
+                "cdouble:" + BigDecimal.valueOf(Double.MAX_VALUE).negate().multiply(BigDecimal.TEN) +
+                "}");
+
+        StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
+
+        JSONObject result = (JSONObject) serde.deserialize(line);
+
+        StructField sf = soi.getStructFieldRef("ctinyint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringByteObjectInspector);
+        JavaStringByteObjectInspector boi = (JavaStringByteObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(Byte.MAX_VALUE, boi.get(result.get("ctinyint")));
+
+        sf = soi.getStructFieldRef("csmallint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringShortObjectInspector);
+        JavaStringShortObjectInspector shoi = (JavaStringShortObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(Short.MAX_VALUE, shoi.get(result.get("csmallint")));
+
+        sf = soi.getStructFieldRef("cint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringIntObjectInspector);
+        JavaStringIntObjectInspector oi = (JavaStringIntObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(Integer.MAX_VALUE, oi.get(result.get("cint")));
+
+        sf = soi.getStructFieldRef("cbigint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringLongObjectInspector);
+        JavaStringLongObjectInspector bioi = (JavaStringLongObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(Long.MAX_VALUE, bioi.get(result.get("cbigint")));
+
+        sf = soi.getStructFieldRef("cfloat");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
+        JavaStringFloatObjectInspector foi = (JavaStringFloatObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(Float.NEGATIVE_INFINITY, foi.get(result.get("cfloat")), 0f);
+
+        sf = soi.getStructFieldRef("cdouble");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
+        JavaStringDoubleObjectInspector doi = (JavaStringDoubleObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(Double.NEGATIVE_INFINITY, doi.get(result.get("cdouble")), 0);
+    }
+
+    @Test
+    public void testUnderflowingFloats() throws SerDeException, JSONException {
+        System.out.println("testUnderflowingFloats");
+
+        JsonSerDe serde = getNumericSerde();
+        Text line = new Text("{" +
+                "cfloat:" + BigDecimal.valueOf(Float.MIN_VALUE).divide(BigDecimal.TEN) + "," +
+                "cdouble:" + BigDecimal.valueOf(Double.MIN_VALUE).divide(BigDecimal.TEN) +
+                "}");
+
+        StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
+
+        JSONObject result = (JSONObject) serde.deserialize(line);
+
+        StructField sf = soi.getStructFieldRef("cfloat");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
+        JavaStringFloatObjectInspector foi = (JavaStringFloatObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(0f, foi.get(result.get("cfloat")), 0f);
+
+        sf = soi.getStructFieldRef("cdouble");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
+        JavaStringDoubleObjectInspector doi = (JavaStringDoubleObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(0, doi.get(result.get("cdouble")), 0);
+    }
+
+    @Test
+    public void testUnderflowingNegativeFloats() throws SerDeException, JSONException {
+        System.out.println("testUnderflowingNegativeFloats");
+
+        JsonSerDe serde = getNumericSerde();
+        Text line = new Text("{" +
+                "cfloat:" + BigDecimal.valueOf(Float.MIN_VALUE).negate().divide(BigDecimal.TEN) + "," +
+                "cdouble:" + BigDecimal.valueOf(Double.MIN_VALUE).negate().divide(BigDecimal.TEN) +
+                "}");
+
+        StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
+
+        JSONObject result = (JSONObject) serde.deserialize(line);
+
+        StructField sf = soi.getStructFieldRef("cfloat");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
+        JavaStringFloatObjectInspector foi = (JavaStringFloatObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(0f, foi.get(result.get("cfloat")), 0f);
+
+        sf = soi.getStructFieldRef("cdouble");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
+        JavaStringDoubleObjectInspector doi = (JavaStringDoubleObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(0, doi.get(result.get("cdouble")), 0);
+    }
+
+    @Test
+    public void testFloatingPointPrecisionLoss() throws SerDeException, JSONException {
+        System.out.println("testFloatingPointPrecisionLoss");
+
+        JsonSerDe serde = getNumericSerde();
+        String veryLongNumber = "12345678901234567890.123456789012345678";
+        Text line = new Text("{" +
+                "cfloat:" + veryLongNumber + "," +
+                "cdouble:" + veryLongNumber + "," +
+                "cdecimal:" + veryLongNumber +
+                "}");
+
+        StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
+
+        JSONObject result = (JSONObject) serde.deserialize(line);
+
+        StructField sf = soi.getStructFieldRef("cfloat");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
+        JavaStringFloatObjectInspector foi = (JavaStringFloatObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(1.2345679e+19f, foi.get(result.get("cfloat")), 0f);
+
+        sf = soi.getStructFieldRef("cdouble");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
+        JavaStringDoubleObjectInspector doi = (JavaStringDoubleObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(1.2345678901234567e+19, doi.get(result.get("cdouble")), 0);
+
+        sf = soi.getStructFieldRef("cdecimal");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDecimalObjectInspector);
+        JavaStringDecimalObjectInspector dbloi = (JavaStringDecimalObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(HiveDecimal.create(veryLongNumber), dbloi.getPrimitiveJavaObject(result.get("cdecimal")));
+    }
+
+    @Test
+    public void testNegativeFloatingPointPrecisionLoss() throws SerDeException, JSONException {
+        System.out.println("testNegativeFloatingPointPrecisionLoss");
+
+        JsonSerDe serde = getNumericSerde();
+        String veryLongNumber = "-12345678901234567890.123456789012345678";
+        Text line = new Text("{" +
+                "cfloat:" + veryLongNumber + "," +
+                "cdouble:" + veryLongNumber + "," +
+                "cdecimal:" + veryLongNumber +
+                "}");
+
+        StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
+
+        JSONObject result = (JSONObject) serde.deserialize(line);
+
+        StructField sf = soi.getStructFieldRef("cfloat");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
+        JavaStringFloatObjectInspector foi = (JavaStringFloatObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(-1.2345679e+19f, foi.get(result.get("cfloat")), 0f);
+
+        sf = soi.getStructFieldRef("cdouble");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
+        JavaStringDoubleObjectInspector doi = (JavaStringDoubleObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(-1.2345678901234567e+19, doi.get(result.get("cdouble")), 0);
+
+        sf = soi.getStructFieldRef("cdecimal");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDecimalObjectInspector);
+        JavaStringDecimalObjectInspector dbloi = (JavaStringDecimalObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(HiveDecimal.create(veryLongNumber), dbloi.getPrimitiveJavaObject(result.get("cdecimal")));
+    }
+
+    /**
+     * Test scientific notation
+     */
+    @Test
+    public void testENotationNumbers() throws SerDeException, JSONException {
+        System.out.println("testENotationNumbers");
+
+        JsonSerDe serde = getNumericSerde();
+        Text line = new Text("{" +
+                "cfloat:3.1415E02," +
+                "cdouble:-1.65788E-12" +
+                "}");
+
+        StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
+
+        JSONObject result = (JSONObject) serde.deserialize(line);
+
+        StructField sf = soi.getStructFieldRef("cfloat");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringFloatObjectInspector);
+        JavaStringFloatObjectInspector foi = (JavaStringFloatObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(3.1415E02f, foi.get(result.get("cfloat")), 0f);
+
+        sf = soi.getStructFieldRef("cdouble");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringDoubleObjectInspector);
+        JavaStringDoubleObjectInspector doi = (JavaStringDoubleObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(-1.65788E-12, doi.get(result.get("cdouble")), 0);
+    }
+
     @Test
     public void testHexSupport() throws SerDeException, JSONException {
-        System.out.println("testHexSupport"); 
-    
-         JsonSerDe serde = getNumericSerde();
-        Text line = new Text("{ cboolean:true, ctinyint:0x01, csmallint:0x0a, cint:0Xabcd,cbigint:0xabcd121212, cfloat:3.1415, cdouble:43424234234.4243423}");
-        
-	StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
-	
-	JSONObject result = (JSONObject) serde.deserialize(line);
-	
-        StructField sf = soi.getStructFieldRef("ctinyint");
-	
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringByteObjectInspector);
-        JavaStringByteObjectInspector boi = (JavaStringByteObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(1, boi.get(result.get("ctinyint")));
-        
-        
-	sf = soi.getStructFieldRef("csmallint");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringShortObjectInspector);
-        JavaStringShortObjectInspector shoi = (JavaStringShortObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(10, shoi.get(result.get("csmallint")));
-	
-	
-	sf = soi.getStructFieldRef("cint");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringIntObjectInspector);
-        JavaStringIntObjectInspector oi = (JavaStringIntObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(43981, oi.get(result.get("cint")));
-	
-	sf = soi.getStructFieldRef("cbigint");
-	assertTrue(sf.getFieldObjectInspector() instanceof JavaStringLongObjectInspector);
-        JavaStringLongObjectInspector bioi = (JavaStringLongObjectInspector) sf.getFieldObjectInspector();
-	assertEquals(737879921170L , bioi.get(result.get("cbigint")));
+        System.out.println("testHexSupport");
 
-        
+        JsonSerDe serde = getNumericSerde();
+        Text line = new Text("{ cboolean:true, ctinyint:0x01, csmallint:0x0a, cint:0Xabcd, cbigint:0xabcd121212 }");
+
+        StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
+
+        JSONObject result = (JSONObject) serde.deserialize(line);
+
+        StructField sf = soi.getStructFieldRef("ctinyint");
+
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringByteObjectInspector);
+        JavaStringByteObjectInspector boi = (JavaStringByteObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(1, boi.get(result.get("ctinyint")));
+
+        sf = soi.getStructFieldRef("csmallint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringShortObjectInspector);
+        JavaStringShortObjectInspector shoi = (JavaStringShortObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(10, shoi.get(result.get("csmallint")));
+
+        sf = soi.getStructFieldRef("cint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringIntObjectInspector);
+        JavaStringIntObjectInspector oi = (JavaStringIntObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(43981, oi.get(result.get("cint")));
+
+        sf = soi.getStructFieldRef("cbigint");
+        assertTrue(sf.getFieldObjectInspector() instanceof JavaStringLongObjectInspector);
+        JavaStringLongObjectInspector bioi = (JavaStringLongObjectInspector) sf.getFieldObjectInspector();
+        assertEquals(737879921170L, bioi.get(result.get("cbigint")));
     }
 
-    
+
     @Test
     public void testSerializeWithMapping() throws SerDeException, JSONException {
-        System.out.println("testSerializeWithMapping");  
-        
+        System.out.println("testSerializeWithMapping");
+
         JsonSerDe serde = getMappedSerde();
-        
+
         System.out.println("serialize");
         ArrayList<Object> row = new ArrayList<Object>(5);
 
         List<ObjectInspector> lOi = new LinkedList<ObjectInspector>();
         List<String> fieldNames = new LinkedList<String>();
-        
+
         row.add(Boolean.TRUE);
         fieldNames.add("one");
         lOi.add(ObjectInspectorFactory.getReflectionObjectInspector(Boolean.class,
                 ObjectInspectorFactory.ObjectInspectorOptions.JAVA));
-        
+
         row.add(43.2f);
         fieldNames.add("two");
         lOi.add(ObjectInspectorFactory.getReflectionObjectInspector(Float.class,
                 ObjectInspectorFactory.ObjectInspectorOptions.JAVA));
-        
+
         final List<String> lst = new LinkedList<String>();
         row.add(lst);
         fieldNames.add("three");
         lOi.add(ObjectInspectorFactory.getStandardListObjectInspector(ObjectInspectorFactory
                 .getReflectionObjectInspector(String.class, ObjectInspectorFactory.ObjectInspectorOptions.JAVA)));
-        
+
         row.add("value1");
         fieldNames.add("four");
         lOi.add(ObjectInspectorFactory.getReflectionObjectInspector(String.class,
                 ObjectInspectorFactory.ObjectInspectorOptions.JAVA));
-        
+
         row.add(7898);
         fieldNames.add("ts");
         lOi.add(ObjectInspectorFactory.getReflectionObjectInspector(Integer.class,
                 ObjectInspectorFactory.ObjectInspectorOptions.JAVA));
-        
+
         StructObjectInspector soi = ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, lOi);
-        
+
         Object obj = serde.serialize(row, soi);
-        
+
         assertTrue(obj instanceof Text);
         String objs = obj.toString();
 
         // this is what we get.. but the order of the elements may vary...
         String res = "{\"timestamp\":7898,\"two\":43.2,\"one\":true,\"three\":[],\"four\":\"value1\"}";
-        String[] r2 = res.substring(1,res.length() - 1).split(",");
+        String[] r2 = res.substring(1, res.length() - 1).split(",");
 
         // they should be the same...let's hope spacing is the same
-        assertEquals(objs.length() , res.length() );
+        assertEquals(objs.length(), res.length());
 
-        for(String s: r2) { assertTrue(objs.contains(s)); }
+        for (String s : r2) {
+            assertTrue(objs.contains(s));
+        }
     }
-    
+
     // {"one":true, "timestamp":1234567, "three":["red","yellow",["blue","azure","cobalt","teal"],"orange"],"two":19.5,"four":"poop"}
     @Test
     public void testMapping() throws SerDeException, IOException {
         System.out.println("testMapping");
         JsonSerDe serde = getMappedSerde();
-        
+
         InputStream is = this.getClass().getResourceAsStream("/testkeyword.txt");
-        
+
         LineNumberReader lnr = new LineNumberReader(new InputStreamReader(is));
-        
+
         StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
         StructField sf = soi.getStructFieldRef("ts");
-        
+
         String line;
-        while( (line = lnr.readLine()) != null ) {
+        while ((line = lnr.readLine()) != null) {
             Text t = new Text(line);
-            
-            Object res = serde.deserialize(t); 
-            
+
+            Object res = serde.deserialize(t);
+
             ObjectInspector foi = sf.getFieldObjectInspector();
-            assertTrue( foi instanceof JavaStringIntObjectInspector);
+            assertTrue(foi instanceof JavaStringIntObjectInspector);
             JavaStringIntObjectInspector jsioi = (JavaStringIntObjectInspector) foi;
-            assertEquals(1234567,  jsioi.get(soi.getStructFieldData(res, sf))  );   
+            assertEquals(1234567, jsioi.get(soi.getStructFieldData(res, sf)));
         }
-        
+
         try {
             is.close();
-        } catch (IOException ex){}
+        } catch (IOException ex) {
+        }
     }
 
     @Test
@@ -683,7 +973,7 @@ public class JsonSerDeTest {
         assertEquals("str", soi.getStructFieldData(res, soi.getStructFieldRef("stringCol")));
         assertNull(soi.getStructFieldData(res, soi.getStructFieldRef("nullCol")));
         assertNull(soi.getStructFieldData(res, soi.getStructFieldRef("missingCol")));
-        assertEquals(jsonStr,"{\"stringCol\":\"str\"}");
+        assertEquals(jsonStr, "{\"stringCol\":\"str\"}");
     }
 
     @Test
@@ -710,7 +1000,7 @@ public class JsonSerDeTest {
         assertEquals("str", soi.getStructFieldData(res, soi.getStructFieldRef("stringCol")));
         assertNull(soi.getStructFieldData(res, soi.getStructFieldRef("nullCol")));
         assertNull(soi.getStructFieldData(res, soi.getStructFieldRef("missingCol")));
-        assertEquals(jsonStr,"{\"stringCol\":\"str\",\"nullCol\":null,\"missingCol\":null}");
+        assertEquals(jsonStr, "{\"stringCol\":\"str\",\"nullCol\":null,\"missingCol\":null}");
     }
 
     @Test

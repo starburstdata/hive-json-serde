@@ -16,6 +16,8 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.AbstractPrimitive
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.SettableFloatObjectInspector;
 import org.apache.hadoop.io.FloatWritable;
 
+import java.math.BigDecimal;
+
 /**
  *
  * @author rcongiu
@@ -30,24 +32,24 @@ public class JavaStringFloatObjectInspector extends AbstractPrimitiveJavaObjectI
     @Override
     public Object getPrimitiveWritableObject(Object o) {
         if(o == null) return null;
-        
-        if(o instanceof String) {
-          return new FloatWritable(Float.parseFloat((String)o));
-        } else {
-          return new FloatWritable((Float) o);
-        }
+        return new FloatWritable(get(o));
     }
 
     @Override
-    public float get(Object o) {  
-        if(o instanceof String) {
-          return Float.parseFloat((String)o); 
-        } if(o instanceof Double) {
+    public float get(Object o) {
+        if (o instanceof Integer) {
+            return ((Integer) o).floatValue();
+        }
+        if (o instanceof Long) {
+            return ((Long) o).floatValue();
+        }
+        if (o instanceof Double) {
             return ((Double) o).floatValue();
         }
-        else {
-          return (Float) o;
+        if (o instanceof BigDecimal) {
+            return ((BigDecimal) o).floatValue();
         }
+        return Float.parseFloat(o.toString());
     }
 
     @Override

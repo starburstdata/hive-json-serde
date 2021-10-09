@@ -16,6 +16,8 @@ import org.apache.hadoop.hive.serde2.io.DoubleWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.AbstractPrimitiveJavaObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.SettableDoubleObjectInspector;
 
+import java.math.BigDecimal;
+
 /**
  *
  * @author rcongiu
@@ -30,22 +32,24 @@ public class JavaStringDoubleObjectInspector extends AbstractPrimitiveJavaObject
     @Override
     public Object getPrimitiveWritableObject(Object o) {
         if(o == null) return null;
-        
-        if(o instanceof String) {
-           return new DoubleWritable(Double.parseDouble((String)o)); 
-        } else {
-          return new DoubleWritable((Double) o);
-        }
+        return new DoubleWritable(get(o));
     }
 
     @Override
     public double get(Object o) {
-        
-        if(o instanceof String) {
-           return Double.parseDouble((String)o); 
-        } else {
-          return (Double) o;
+        if (o instanceof Integer) {
+            return ((Integer) o).doubleValue();
         }
+        if (o instanceof Long) {
+            return ((Long) o).doubleValue();
+        }
+        if (o instanceof Double) {
+            return (Double) o;
+        }
+        if (o instanceof BigDecimal) {
+            return ((BigDecimal) o).doubleValue();
+        }
+        return Double.parseDouble(o.toString());
     }
 
     @Override

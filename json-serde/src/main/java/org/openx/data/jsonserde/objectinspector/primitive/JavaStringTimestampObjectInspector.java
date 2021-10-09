@@ -89,13 +89,13 @@ public class JavaStringTimestampObjectInspector extends AbstractPrimitiveJavaObj
     public TimestampWritableV2 getPrimitiveWritableObject(Object o) {
         if(o == null) return null;
         
-        if(o instanceof String) {
+        if (o instanceof String) {
            return new TimestampWritableV2(org.apache.hadoop.hive.common.type.Timestamp.valueOf((String)o));
-        } else if (o instanceof org.apache.hadoop.hive.common.type.Timestamp) {
-          return new TimestampWritableV2((org.apache.hadoop.hive.common.type.Timestamp) o);
-        } else {
-            return (TimestampWritableV2) o;
         }
+        if (o instanceof org.apache.hadoop.hive.common.type.Timestamp) {
+          return new TimestampWritableV2((org.apache.hadoop.hive.common.type.Timestamp) o);
+        }
+        return (TimestampWritableV2) o;
     }
 
     @Override

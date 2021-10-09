@@ -15,7 +15,11 @@ package org.openx.data.jsonserde.objectinspector.primitive;
 import org.apache.hadoop.hive.serde2.io.ShortWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.AbstractPrimitiveJavaObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.SettableShortObjectInspector;
+import org.apache.hadoop.io.ByteWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.velocity.runtime.directive.Parse;
+
+import java.math.BigDecimal;
 
 /**
  *
@@ -32,24 +36,24 @@ public class JavaStringShortObjectInspector
     @Override
     public Object getPrimitiveWritableObject(Object o) {
         if(o == null) return null;
-        
-        if(o instanceof String) {
-          return new ShortWritable(ParsePrimitiveUtils.parseShort((String)o)); 
-        } else {
-          return new ShortWritable((Short) o);
-        }
+        return new ShortWritable(get(o));
     }
 
     @Override
     public short get(Object o) {
-        
-        if(o instanceof String) {
-            return ParsePrimitiveUtils.parseShort((String) o);
-        } else if (!(o instanceof Short)) {
-            return ParsePrimitiveUtils.parseShort(o.toString());
-        } else {
-          return (Short) o;
+        if (o instanceof Integer) {
+            return ((Integer) o).shortValue();
         }
+        if (o instanceof Long) {
+            return ((Long) o).shortValue();
+        }
+        if (o instanceof Double) {
+            return ((Double) o).shortValue();
+        }
+        if (o instanceof BigDecimal) {
+            return ((BigDecimal) o).shortValue();
+        }
+        return ParsePrimitiveUtils.parseShort(o.toString());
     }
 
     @Override

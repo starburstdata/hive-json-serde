@@ -79,18 +79,20 @@ public class ParsingTest {
      */
     @Test
     public void testParsingNumbersThatAreBestRepresentedAsLongs() throws JSONException {
-        assertParsed(9223372036854775807L, "9223372036854775807");
-        assertParsed(9223372036854775806L, "9223372036854775806");
-        assertParsed(-9223372036854775808L, "-9223372036854775808");
-        assertParsed(-9223372036854775807L, "-9223372036854775807");
+        assertParsed(Long.MAX_VALUE, Long.toString(Long.MAX_VALUE));
+        assertParsed((long) Integer.MAX_VALUE + 1L, Long.toString((long) Integer.MAX_VALUE + 1L));
+        assertParsed(Long.MIN_VALUE, Long.toString(Long.MIN_VALUE));
+        assertParsed((long) Integer.MIN_VALUE - 1L, Long.toString((long) Integer.MIN_VALUE - 1L));
+        assertParsed(Long.MAX_VALUE - 1L, Long.toString(Long.MAX_VALUE - 1L));
+        assertParsed(Long.MIN_VALUE + 1L, Long.toString(Long.MIN_VALUE + 1L));
     }
 
     @Test
     public void testParsingNumbersThatAreBestRepresentedAsIntegers() throws JSONException {
         assertParsed(0, "0");
         assertParsed(5, "5");
-        assertParsed(-2147483648, "-2147483648");
-        assertParsed(2147483647, "2147483647");
+        assertParsed(Integer.MIN_VALUE, Integer.toString(Integer.MIN_VALUE));
+        assertParsed(Integer.MAX_VALUE, Integer.toString(Integer.MAX_VALUE));
     }
 
     @Test

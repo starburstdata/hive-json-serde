@@ -16,6 +16,8 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.AbstractPrimitive
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.SettableIntObjectInspector;
 import org.apache.hadoop.io.IntWritable;
 
+import java.math.BigDecimal;
+
 /**
  *
  * @author rcongiu
@@ -31,21 +33,24 @@ public class JavaStringIntObjectInspector
     @Override
     public Object getPrimitiveWritableObject(Object o) {
         if(o == null) return null;
-        
-        if(o instanceof String) {
-           return new IntWritable(ParsePrimitiveUtils.parseInt((String)o)); 
-        } else {
-           return new IntWritable((Integer) o);
-        }
+        return new IntWritable(get(o));
     }
 
     @Override
     public int get(Object o) {
-        if(o instanceof String) {
-           return ParsePrimitiveUtils.parseInt((String)o); 
-        } else {
-           return (Integer) o;
+        if (o instanceof Integer) {
+            return (Integer) o;
         }
+        if (o instanceof Long) {
+            return ((Long) o).intValue();
+        }
+        if (o instanceof Double) {
+            return ((Double) o).intValue();
+        }
+        if (o instanceof BigDecimal) {
+            return ((BigDecimal) o).intValue();
+        }
+        return ParsePrimitiveUtils.parseInt(o.toString());
     }
 
     @Override
