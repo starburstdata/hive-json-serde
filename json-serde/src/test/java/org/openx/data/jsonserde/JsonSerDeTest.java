@@ -14,7 +14,6 @@ package org.openx.data.jsonserde;
 import com.starburstdata.openjson.JSONArray;
 import com.starburstdata.openjson.JSONException;
 import com.starburstdata.openjson.JSONObject;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.common.type.HiveDecimal;
 import org.apache.hadoop.hive.serde.serdeConstants;
 import org.apache.hadoop.hive.serde2.SerDeException;
@@ -26,10 +25,6 @@ import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringBooleanObjectInspector;
 import org.openx.data.jsonserde.objectinspector.primitive.JavaStringByteObjectInspector;
@@ -46,15 +41,18 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -65,43 +63,24 @@ public class JsonSerDeTest {
     public JsonSerDeTest() {
     }
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-    }
-
-    @After
-    public void tearDown() {
-    }
-
     public void initialize(JsonSerDe instance) throws Exception {
         System.out.println("initialize");
 
-        Configuration conf = null;
         Properties tbl = new Properties();
         tbl.setProperty(serdeConstants.LIST_COLUMNS, "one,two,three,four");
         tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "boolean,float,array<string>,string");
 
-        instance.initialize(conf, tbl);
+        instance.initialize(null, tbl);
     }
 
     public void initialize2(JsonSerDe instance) throws Exception {
         System.out.println("initialize");
 
-        Configuration conf = null;
         Properties tbl = new Properties();
         tbl.setProperty(serdeConstants.LIST_COLUMNS, "one,two,three,four,five");
         tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "boolean,float,array<string>,string,string");
 
-        instance.initialize(conf, tbl);
+        instance.initialize(null, tbl);
     }
 
 
@@ -126,7 +105,7 @@ public class JsonSerDeTest {
         assertEquals(Boolean.TRUE, soi.getStructFieldData(result, soi.getStructFieldRef("one")));
 
         JavaStringFloatObjectInspector jsfOi = (JavaStringFloatObjectInspector) soi.getStructFieldRef("two").getFieldObjectInspector();
-        assertTrue(19.5 == jsfOi.get(soi.getStructFieldData(result, soi.getStructFieldRef("two"))));
+        assertEquals(19.5, jsfOi.get(soi.getStructFieldData(result, soi.getStructFieldRef("two"))), 0.0);
 
         Object ar = soi.getStructFieldData(result, soi.getStructFieldRef("three"));
         assertTrue(ar instanceof JSONArray);
@@ -189,9 +168,9 @@ public class JsonSerDeTest {
 
         StructObjectInspector soi = (StructObjectInspector) instance.getObjectInspector();
         JSONObject result = (JSONObject) instance.deserialize(w);
-        assertTrue(JSONObject.NULL == result.get("four"));
+        assertSame(JSONObject.NULL, result.get("four"));
 
-        assertEquals(null, soi.getStructFieldData(result, soi.getStructFieldRef("four")));
+        assertNull(soi.getStructFieldData(result, soi.getStructFieldRef("four")));
 
         // same on number
         Object res = soi.getStructFieldData(result, soi.getStructFieldRef("two"));
@@ -208,7 +187,7 @@ public class JsonSerDeTest {
         String sres = elOi.getPrimitiveJavaObject(el);
         assertNull(sres);
 
-        List all = loi.getList(res);
+        List<?> all = loi.getList(res);
         assertEquals(4, all.size());
         assertNull(all.get(3));
         assertEquals("red", all.get(0));
@@ -266,8 +245,8 @@ public class JsonSerDeTest {
         initialize(instance);
 
         System.out.println("getSerializedClass");
-        Class expResult = Text.class;
-        Class result = instance.getSerializedClass();
+        Class<Text> expResult = Text.class;
+        Class<? extends Writable> result = instance.getSerializedClass();
         assertEquals(expResult, result);
 
     }
@@ -275,43 +254,44 @@ public class JsonSerDeTest {
     /**
      * Test of serialize method, of class JsonSerDe.
      */
-    public void testSerialize() throws SerDeException, JSONException, Exception {
-        System.out.println("serialize");
+    @Test
+    public void testSerialize() throws Exception {
+        System.out.println("testSerialize");
 
         JsonSerDe instance = new JsonSerDe();
         initialize(instance);
 
-        ArrayList<Object> row = new ArrayList<Object>(5);
+        ArrayList<Object> row = new ArrayList<>(5);
 
-        List<ObjectInspector> lOi = new LinkedList<ObjectInspector>();
-        List<String> fieldNames = new LinkedList<String>();
+        List<ObjectInspector> lOi = new LinkedList<>();
+        List<String> fieldNames = new LinkedList<>();
 
         row.add("HELLO");
-        fieldNames.add("atext");
+        fieldNames.add("one");
         lOi.add(ObjectInspectorFactory.getReflectionObjectInspector(String.class,
                 ObjectInspectorFactory.ObjectInspectorOptions.JAVA));
 
         row.add(10);
-        fieldNames.add("anumber");
+        fieldNames.add("two");
         lOi.add(ObjectInspectorFactory.getReflectionObjectInspector(Integer.class,
                 ObjectInspectorFactory.ObjectInspectorOptions.JAVA));
 
-        List<String> array = new LinkedList<String>();
+        List<String> array = new LinkedList<>();
         array.add("String1");
         array.add("String2");
 
         row.add(array);
-        fieldNames.add("alist");
+        fieldNames.add("three");
         lOi.add(ObjectInspectorFactory.getStandardListObjectInspector(
                 ObjectInspectorFactory.getReflectionObjectInspector(String.class,
                         ObjectInspectorFactory.ObjectInspectorOptions.JAVA)));
 
-        Map<String, String> m = new HashMap<String, String>();
+        Map<String, String> m = new HashMap<>();
         m.put("k1", "v1");
         m.put("k2", "v2");
 
         row.add(m);
-        fieldNames.add("amap");
+        fieldNames.add("four");
         lOi.add(ObjectInspectorFactory.getStandardMapObjectInspector(
                 ObjectInspectorFactory.getReflectionObjectInspector(String.class,
                         ObjectInspectorFactory.ObjectInspectorOptions.JAVA),
@@ -324,41 +304,37 @@ public class JsonSerDeTest {
         Object result = instance.serialize(row, soi);
 
         JSONObject res = new JSONObject(true, result.toString());
-        assertEquals(res.getString("atext"), row.get(0));
+        assertEquals(res.getString("one"), row.get(0));
 
-        assertEquals(res.get("anumber"), row.get(1));
+        assertEquals(res.get("two"), row.get(1));
 
         // after serialization the internal contents of JSONObject are destroyed (overwritten by their string representation
         // (for map and arrays) 
 
-        System.out.println("Serialized to " + result.toString());
-
+        System.out.println("Serialized to " + result);
     }
-
 
     public JsonSerDe getMappedSerde() throws SerDeException {
         System.out.println("testMapping");
         JsonSerDe serde = new JsonSerDe();
-        Configuration conf = null;
         Properties tbl = new Properties();
         tbl.setProperty(serdeConstants.LIST_COLUMNS, "one,two,three,four,ts");
         tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "boolean,float,array<string>,string,int");
         // this means, we call it ts but in data it's 'timestamp'
         tbl.setProperty("mapping.ts", "timestamp");
 
-        serde.initialize(conf, tbl);
+        serde.initialize(null, tbl);
         return serde;
     }
 
     public JsonSerDe getNumericSerde() throws SerDeException {
         System.out.println("getNumericSerde");
         JsonSerDe serde = new JsonSerDe();
-        Configuration conf = null;
         Properties tbl = new Properties();
         tbl.setProperty(serdeConstants.LIST_COLUMNS, "cboolean,ctinyint,csmallint,cint,cbigint,cfloat,cdouble,cdecimal");
         tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "boolean,tinyint,smallint,int,bigint,float,double,decimal(38,18)");
 
-        serde.initialize(conf, tbl);
+        serde.initialize(null, tbl);
         return serde;
     }
 
@@ -386,7 +362,7 @@ public class JsonSerDeTest {
 
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringBooleanObjectInspector);
         JavaStringBooleanObjectInspector jboi = (JavaStringBooleanObjectInspector) sf.getFieldObjectInspector();
-        assertEquals(true, jboi.get(result.get("cboolean")));
+        assertTrue(jboi.get(result.get("cboolean")));
 
         sf = soi.getStructFieldRef("ctinyint");
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringByteObjectInspector);
@@ -448,7 +424,7 @@ public class JsonSerDeTest {
 
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringBooleanObjectInspector);
         JavaStringBooleanObjectInspector jboi = (JavaStringBooleanObjectInspector) sf.getFieldObjectInspector();
-        assertEquals(true, jboi.get(result.get("cboolean")));
+        assertTrue(jboi.get(result.get("cboolean")));
 
         sf = soi.getStructFieldRef("ctinyint");
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringByteObjectInspector);
@@ -510,7 +486,7 @@ public class JsonSerDeTest {
 
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringBooleanObjectInspector);
         JavaStringBooleanObjectInspector jboi = (JavaStringBooleanObjectInspector) sf.getFieldObjectInspector();
-        assertEquals(true, jboi.get(result.get("cboolean")));
+        assertTrue(jboi.get(result.get("cboolean")));
 
         sf = soi.getStructFieldRef("ctinyint");
         assertTrue(sf.getFieldObjectInspector() instanceof JavaStringByteObjectInspector);
@@ -652,8 +628,8 @@ public class JsonSerDeTest {
 
         JsonSerDe serde = getNumericSerde();
         Text line = new Text("{" +
-                "cfloat:" + BigDecimal.valueOf(Float.MIN_VALUE).divide(BigDecimal.TEN) + "," +
-                "cdouble:" + BigDecimal.valueOf(Double.MIN_VALUE).divide(BigDecimal.TEN) +
+                "cfloat:" + BigDecimal.valueOf(Float.MIN_VALUE).divide(BigDecimal.TEN, MathContext.UNLIMITED) + "," +
+                "cdouble:" + BigDecimal.valueOf(Double.MIN_VALUE).divide(BigDecimal.TEN, MathContext.UNLIMITED) +
                 "}");
 
         StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
@@ -677,8 +653,8 @@ public class JsonSerDeTest {
 
         JsonSerDe serde = getNumericSerde();
         Text line = new Text("{" +
-                "cfloat:" + BigDecimal.valueOf(Float.MIN_VALUE).negate().divide(BigDecimal.TEN) + "," +
-                "cdouble:" + BigDecimal.valueOf(Double.MIN_VALUE).negate().divide(BigDecimal.TEN) +
+                "cfloat:" + BigDecimal.valueOf(Float.MIN_VALUE).negate().divide(BigDecimal.TEN, MathContext.UNLIMITED) + "," +
+                "cdouble:" + BigDecimal.valueOf(Double.MIN_VALUE).negate().divide(BigDecimal.TEN, MathContext.UNLIMITED) +
                 "}");
 
         StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
@@ -829,10 +805,10 @@ public class JsonSerDeTest {
         JsonSerDe serde = getMappedSerde();
 
         System.out.println("serialize");
-        ArrayList<Object> row = new ArrayList<Object>(5);
+        ArrayList<Object> row = new ArrayList<>(5);
 
-        List<ObjectInspector> lOi = new LinkedList<ObjectInspector>();
-        List<String> fieldNames = new LinkedList<String>();
+        List<ObjectInspector> lOi = new LinkedList<>();
+        List<String> fieldNames = new LinkedList<>();
 
         row.add(Boolean.TRUE);
         fieldNames.add("one");
@@ -844,7 +820,7 @@ public class JsonSerDeTest {
         lOi.add(ObjectInspectorFactory.getReflectionObjectInspector(Float.class,
                 ObjectInspectorFactory.ObjectInspectorOptions.JAVA));
 
-        final List<String> lst = new LinkedList<String>();
+        final List<String> lst = new LinkedList<>();
         row.add(lst);
         fieldNames.add("three");
         lOi.add(ObjectInspectorFactory.getStandardListObjectInspector(ObjectInspectorFactory
@@ -887,7 +863,7 @@ public class JsonSerDeTest {
 
         InputStream is = this.getClass().getResourceAsStream("/testkeyword.txt");
 
-        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(is));
+        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(Objects.requireNonNull(is)));
 
         StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
         StructField sf = soi.getStructFieldRef("ts");
@@ -906,15 +882,14 @@ public class JsonSerDeTest {
 
         try {
             is.close();
-        } catch (IOException ex) {
+        } catch (IOException ignored) {
         }
     }
 
     @Test
-    public void testCaseSensitiveMapping() throws SerDeException, IOException {
+    public void testCaseSensitiveMapping() throws SerDeException {
         System.out.println("testCaseSensitiveMapping");
         JsonSerDe serde = new JsonSerDe();
-        Configuration conf = null;
         Properties tbl = new Properties();
         tbl.setProperty(serdeConstants.LIST_COLUMNS, "time1,time2");
         tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "string,string");
@@ -923,7 +898,7 @@ public class JsonSerDeTest {
         tbl.setProperty("mapping.time2", "time");
         tbl.setProperty(JsonSerDe.PROP_CASE_INSENSITIVE, "false");
 
-        serde.initialize(conf, tbl);
+        serde.initialize(null, tbl);
         StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
         Object res = serde.deserialize(new Text("{\"Time\":\"forme\",\"time\":\"foryou\"}"));
 
@@ -932,10 +907,9 @@ public class JsonSerDeTest {
     }
 
     @Test
-    public void testNestedCaseSensitiveMapping() throws SerDeException, IOException {
+    public void testNestedCaseSensitiveMapping() throws SerDeException {
         System.out.println("testCaseSensitiveMapping");
         JsonSerDe serde = new JsonSerDe();
-        Configuration conf = null;
         Properties tbl = new Properties();
         tbl.setProperty(serdeConstants.LIST_COLUMNS, "col1,col2");
         tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "string,struct<time1:string>");
@@ -943,7 +917,7 @@ public class JsonSerDeTest {
         tbl.setProperty("mapping.time1", "Time");
         tbl.setProperty(JsonSerDe.PROP_CASE_INSENSITIVE, "false");
 
-        serde.initialize(conf, tbl);
+        serde.initialize(null, tbl);
         StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
         Object res = serde.deserialize(new Text("{\"col1\":\"forme\",\"col2\":{\"Time\":\"foryou\"}}"));
 
@@ -954,14 +928,13 @@ public class JsonSerDeTest {
     }
 
     @Test
-    public void testExplicitNullValueDefault() throws SerDeException, IOException {
+    public void testExplicitNullValueDefault() throws SerDeException {
         System.out.println("testExplicitNullValue");
         JsonSerDe serde = new JsonSerDe();
-        Configuration conf = null;
         Properties tbl = new Properties();
         tbl.setProperty(serdeConstants.LIST_COLUMNS, "stringCol,nullCol,missingCol");
         tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "string,string,string");
-        serde.initialize(conf, tbl);
+        serde.initialize(null, tbl);
         StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
 
         // Load json string with one 'null' value and one 'missing' value
@@ -977,10 +950,9 @@ public class JsonSerDeTest {
     }
 
     @Test
-    public void testExplicitNullValue() throws SerDeException, IOException {
+    public void testExplicitNullValue() throws SerDeException {
         System.out.println("testExplicitNullValue");
         JsonSerDe serde = new JsonSerDe();
-        Configuration conf = null;
         Properties tbl = new Properties();
         tbl.setProperty(serdeConstants.LIST_COLUMNS, "stringCol,nullCol,missingCol");
         tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "string,string,string");
@@ -988,7 +960,7 @@ public class JsonSerDeTest {
         // Set 'explicit.null' to true
         tbl.setProperty(JsonSerDe.PROP_EXPLICIT_NULL, "true");
 
-        serde.initialize(conf, tbl);
+        serde.initialize(null, tbl);
         StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
 
         // Load json string with one 'null' value and one 'missing' value
@@ -1004,10 +976,9 @@ public class JsonSerDeTest {
     }
 
     @Test
-    public void testNestedExplicitNullValue() throws SerDeException, IOException {
+    public void testNestedExplicitNullValue() throws SerDeException {
         System.out.println("testNestedExplicitNullValue");
         JsonSerDe serde = new JsonSerDe();
-        Configuration conf = null;
         Properties tbl = new Properties();
         tbl.setProperty(serdeConstants.LIST_COLUMNS, "structCol,structNullCol,missingStructCol");
         tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "struct<name:string>,struct<name:string>,struct<name:string>");
@@ -1015,7 +986,7 @@ public class JsonSerDeTest {
         // Set 'explicit.null' to true
         tbl.setProperty(JsonSerDe.PROP_EXPLICIT_NULL, "true");
 
-        serde.initialize(conf, tbl);
+        serde.initialize(null, tbl);
         StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
         Object res = serde.deserialize(new Text("{\"structCol\":{\"name\":\"myName\"},\"structNullCol\":{\"name\":null}}"));
 
