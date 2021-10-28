@@ -16,6 +16,8 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.AbstractPrimitive
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.SettableLongObjectInspector;
 import org.apache.hadoop.io.LongWritable;
 
+import java.math.BigDecimal;
+
 /**
  *
  * @author rcongiu
@@ -31,22 +33,24 @@ public class JavaStringLongObjectInspector
     @Override
     public Object getPrimitiveWritableObject(Object o) {
         if(o == null) return null;
-
-        if(o instanceof String) {
-           return new LongWritable(ParsePrimitiveUtils.parseLong((String)o));
-        } else {
-          return new LongWritable(((Long) o).longValue());
-        }
+        return new LongWritable(get(o));
     }
 
     @Override
     public long get(Object o) {
-
-        if(o instanceof String) {
-           return ParsePrimitiveUtils.parseLong((String)o);
-        } else {
-          return (Long) o;
+        if (o instanceof Integer) {
+            return ((Integer) o).longValue();
         }
+        if (o instanceof Long) {
+            return (Long) o;
+        }
+        if (o instanceof Double) {
+            return ((Double) o).longValue();
+        }
+        if (o instanceof BigDecimal) {
+            return ((BigDecimal) o).longValue();
+        }
+        return ParsePrimitiveUtils.parseLong(o.toString());
     }
 
     @Override

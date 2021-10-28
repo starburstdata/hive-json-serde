@@ -20,6 +20,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.SettableHiveDecim
 import org.apache.hadoop.hive.serde2.typeinfo.DecimalTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.HiveDecimalUtils;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class JavaStringDecimalObjectInspector
@@ -32,32 +33,37 @@ public class JavaStringDecimalObjectInspector
 
     @Override
     public HiveDecimalWritable getPrimitiveWritableObject(Object o) {
+        HiveDecimal dec = get(o);
+        return dec == null ? null : new HiveDecimalWritable(dec);
+    }
+
+    private HiveDecimal get(Object o) {
         if (o == null) {
             return null;
         }
 
-        if (o instanceof String) {
-            HiveDecimal dec = enforcePrecisionScale(HiveDecimal.create((String)o));
-            return dec == null ? null : new HiveDecimalWritable(dec);
-        }
+        return enforcePrecisionScale(getHiveDecimal(o));
+    }
 
-        HiveDecimal dec = enforcePrecisionScale((HiveDecimal)o);
-        return dec == null ? null : new HiveDecimalWritable(dec);
+    private HiveDecimal getHiveDecimal(Object o) {
+        if (o instanceof Integer) {
+            return HiveDecimal.create((Integer) o);
+        }
+        if (o instanceof Long) {
+            return HiveDecimal.create((Long) o);
+        }
+        if (o instanceof Double) {
+            return HiveDecimal.create((Double) o);
+        }
+        if (o instanceof BigDecimal) {
+            return HiveDecimal.create((BigDecimal) o);
+        }
+        return HiveDecimal.create(o.toString());
     }
 
     @Override
     public HiveDecimal getPrimitiveJavaObject(Object o) {
-        HiveDecimal dec;
-        if (o instanceof HiveDecimal) {
-            dec = (HiveDecimal) o;
-        } else if (o instanceof String) {
-            dec = HiveDecimal.create((String) o);
-        } else if (o instanceof Number) {
-            dec = HiveDecimal.create(o.toString());
-        } else {
-            return null;
-        }
-        return enforcePrecisionScale(dec);
+        return get(o);
     }
 
     @Override

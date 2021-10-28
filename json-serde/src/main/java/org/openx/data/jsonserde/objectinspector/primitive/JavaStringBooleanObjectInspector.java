@@ -31,21 +31,19 @@ public class JavaStringBooleanObjectInspector extends AbstractPrimitiveJavaObjec
   public Object getPrimitiveWritableObject(Object o) {
     if(o == null) return null;
 
-    if(o instanceof String) {
-      return new BooleanWritable(Boolean.parseBoolean((String) o));
-    } else {
+    if(o instanceof Boolean) {
       return new BooleanWritable((Boolean) o);
     }
+    return new BooleanWritable(Boolean.parseBoolean(o.toString()));
   }
 
   @Override
   public boolean get(Object o) {
 
-    if(o instanceof String) {
-      return Boolean.parseBoolean((String) o);
-    } else {
+    if(o instanceof Boolean) {
       return (Boolean) o;
     }
+    return Boolean.parseBoolean(o.toString());
   }
 
   @Override

@@ -15,6 +15,9 @@ package org.openx.data.jsonserde.objectinspector.primitive;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.AbstractPrimitiveJavaObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.SettableByteObjectInspector;
 import org.apache.hadoop.io.ByteWritable;
+import org.apache.hadoop.io.IntWritable;
+
+import java.math.BigDecimal;
 
 /**
  *
@@ -31,23 +34,24 @@ public  class JavaStringByteObjectInspector
     @Override
     public Object getPrimitiveWritableObject(Object o) {
         if(o == null) return null;
-        
-        if(o instanceof String) {
-           return new ByteWritable(ParsePrimitiveUtils.parseByte((String)o)); 
-        } else {
-           return new ByteWritable((Byte) o);
-        }
+        return new ByteWritable(get(o));
     }
 
     @Override
     public byte get(Object o) {
-        if(o instanceof String) {
-            return ParsePrimitiveUtils.parseByte((String) o);
-        } else if(!(o instanceof Byte)) {
-            return ParsePrimitiveUtils.parseByte(o.toString());
-        } else {
-           return (Byte) o;
+        if (o instanceof Integer) {
+            return ((Integer) o).byteValue();
         }
+        if (o instanceof Long) {
+            return ((Long) o).byteValue();
+        }
+        if (o instanceof Double) {
+            return ((Double) o).byteValue();
+        }
+        if (o instanceof BigDecimal) {
+            return ((BigDecimal) o).byteValue();
+        }
+        return ParsePrimitiveUtils.parseByte(o.toString());
     }
 
     @Override
