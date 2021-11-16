@@ -44,7 +44,7 @@
         <profile>
             <id>cdh7</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
                 <module>json-serde-cdh7-shim</module>
@@ -61,7 +61,7 @@
         <profile>
             <id>hdp3</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <modules>
                 <module>json-serde-hdp3-shim</module>
