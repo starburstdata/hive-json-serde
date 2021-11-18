@@ -16,6 +16,10 @@ import java.time.temporal.ChronoField;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+import static java.time.format.ResolverStyle.STRICT;
+
 /**
  *
  * @author rcongiu
@@ -33,9 +37,9 @@ public final class ParsePrimitiveUtils {
     static {
         DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
         // Date part
-        builder.append(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        builder.append(ISO_LOCAL_DATE_TIME);
         builder.appendOffset("+HHMM", "Z");
-        NO_COLON_OFFSET_FORMAT = builder.toFormatter().withResolverStyle(ResolverStyle.LENIENT);
+        NO_COLON_OFFSET_FORMAT = builder.toFormatter();
     }
 
     static {
@@ -151,7 +155,7 @@ public final class ParsePrimitiveUtils {
         try {
             if (s.endsWith("Z") || hasTZOffset.matcher(s).matches()) {
                 if (s.charAt(s.length() - 3) == ':') {
-                    parsed = ZonedDateTime.parse(s, DateTimeFormatter.ISO_OFFSET_DATE_TIME); // -06:00
+                    parsed = ZonedDateTime.parse(s, ISO_OFFSET_DATE_TIME); // -06:00
                 } else {
                     parsed = ZonedDateTime.parse(s, NO_COLON_OFFSET_FORMAT); // -0600
                 }
