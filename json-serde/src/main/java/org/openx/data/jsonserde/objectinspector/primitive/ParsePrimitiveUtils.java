@@ -36,13 +36,19 @@ public final class ParsePrimitiveUtils {
         builder.append(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         builder.appendOffset("+HHMM", "Z");
         NO_COLON_OFFSET_FORMAT = builder.toFormatter().withResolverStyle(ResolverStyle.LENIENT);
-        builder = new DateTimeFormatterBuilder();
+    }
+
+    static {
+        DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
         // Date and time parts
         builder.append(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         // Fractional part
         builder.optionalStart().appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true).optionalEnd();
         LOCAL_PRINT_FORMATTER = builder.toFormatter();
-        builder = new DateTimeFormatterBuilder();
+    }
+
+    static {
+        DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
         // Date and time parts
         builder.append(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
         // Fractional part
