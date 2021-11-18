@@ -177,11 +177,11 @@ public class JsonSerDeTimeStampTest {
     JavaStringTimestampObjectInspector jstOi = (JavaStringTimestampObjectInspector) 
             soi.getStructFieldRef("five").getFieldObjectInspector();
     assertEquals(getDate("2013-05-06 00:58:45" ),
-            jstOi.getPrimitiveJavaObject(result.get("five"))   );
+            jstOi.getPrimitiveJavaObject(result.get("five")));
   }
 
   @Test
-  public void testTimestampDeSerializeNumericTimestampWithNanoseconds() throws Exception {
+  public void testTimestampDeSerializeFloatingPointTimestampWithMilliseconds() throws Exception {
     // Test that timestamp object can be deserialized
     Writable w = new Text("{\"one\":true,\"five\":1367801925.123}");
 
@@ -190,11 +190,11 @@ public class JsonSerDeTimeStampTest {
     JavaStringTimestampObjectInspector jstOi = (JavaStringTimestampObjectInspector) 
             soi.getStructFieldRef("five").getFieldObjectInspector();
     assertEquals(getDate("2013-05-06 00:58:45.123"),
-            jstOi.getPrimitiveJavaObject(result.get("five")) );
+            jstOi.getPrimitiveJavaObject(result.get("five")));
   }
 
   @Test
-  public void testTimestampDeSerializeNumericTimestampWithMilliseconds() throws Exception {
+  public void testTimestampDeSerializeLongTimestampWithMilliseconds() throws Exception {
     // Test that timestamp object can be deserialized
     Writable w = new Text("{\"one\":true,\"five\":1367801925123}");
 
