@@ -108,7 +108,7 @@ public class JsonSerDeTimeStampTest {
   }
 
   @Test
-  public void testTimestampDeSerializeWithPlusHoursWithColon() throws Exception {
+  public void testTimestampDeSerializeNanosecondsWithPlusHoursWithColon() throws Exception {
     // Test that timestamp object can be deserialized
     Writable w = new Text("{\"one\":true,\"five\":\"2017-08-17T10:46:04.123456789+03:00\"}");
 
@@ -123,7 +123,7 @@ public class JsonSerDeTimeStampTest {
   }
 
   @Test
-  public void testTimestampDeSerializeWithPlusHours() throws Exception {
+  public void testTimestampDeSerializeNanosecondsWithPlusHours() throws Exception {
     // Test that timestamp object can be deserialized
     Writable w = new Text("{\"one\":true,\"five\":\"2017-08-17T10:46:04.123456789+0300\"}");
 
@@ -134,6 +134,36 @@ public class JsonSerDeTimeStampTest {
     JavaStringTimestampObjectInspector jstOi = (JavaStringTimestampObjectInspector)
             soi.getStructFieldRef("five").getFieldObjectInspector();
     assertEquals(org.apache.hadoop.hive.common.type.Timestamp.valueOf("2017-08-17 07:46:04.123456789"),
+            jstOi.getPrimitiveJavaObject(result.get("five")));
+  }
+
+  @Test
+  public void testTimestampDeSerializeWithPlusHoursWithColon() throws Exception {
+    // Test that timestamp object can be deserialized
+    Writable w = new Text("{\"one\":true,\"five\":\"2017-08-17T10:46:04+03:00\"}");
+
+    JSONObject result = (JSONObject) instance.deserialize(w);
+
+    StructObjectInspector soi = (StructObjectInspector) instance.getObjectInspector();
+
+    JavaStringTimestampObjectInspector jstOi = (JavaStringTimestampObjectInspector)
+            soi.getStructFieldRef("five").getFieldObjectInspector();
+    assertEquals(org.apache.hadoop.hive.common.type.Timestamp.valueOf("2017-08-17 07:46:04"),
+            jstOi.getPrimitiveJavaObject(result.get("five")));
+  }
+
+  @Test
+  public void testTimestampDeSerializeWithPlusHours() throws Exception {
+    // Test that timestamp object can be deserialized
+    Writable w = new Text("{\"one\":true,\"five\":\"2017-08-17T10:46:04+0300\"}");
+
+    JSONObject result = (JSONObject) instance.deserialize(w);
+
+    StructObjectInspector soi = (StructObjectInspector) instance.getObjectInspector();
+
+    JavaStringTimestampObjectInspector jstOi = (JavaStringTimestampObjectInspector)
+            soi.getStructFieldRef("five").getFieldObjectInspector();
+    assertEquals(org.apache.hadoop.hive.common.type.Timestamp.valueOf("2017-08-17 07:46:04"),
             jstOi.getPrimitiveJavaObject(result.get("five")));
   }
 
@@ -240,8 +270,8 @@ public class JsonSerDeTimeStampTest {
     JsonSerDe serde = new JsonSerDe();
     Configuration conf = null;
     Properties tbl = new Properties();
-    tbl.setProperty(serdeConstants.LIST_COLUMNS, "one,two,three");
-    tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "boolean,string,timestamp"); // one timestamp field
+    tbl.setProperty(serdeConstants.LIST_COLUMNS, "one,two,three,four");
+    tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "boolean,string,timestamp,timestamp"); // two timestamp fields
     serde.initialize(conf, tbl);
 
     ArrayList<Object> row = new ArrayList<Object>(3);
@@ -268,6 +298,10 @@ public class JsonSerDeTimeStampTest {
     fieldNames.add("three");
     lOi.add(PrimitiveObjectInspectorFactory.javaTimestampObjectInspector);
 
+    row.add(org.apache.hadoop.hive.common.type.Timestamp.ofEpochMilli(cal.getTime().getTime(), 0));
+    fieldNames.add("four");
+    lOi.add(PrimitiveObjectInspectorFactory.javaTimestampObjectInspector);
+
     StructObjectInspector soi = ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, lOi);
 
     Object obj = serde.serialize(row, soi);
@@ -280,5 +314,6 @@ public class JsonSerDeTimeStampTest {
     assertTrue(serialized.contains("\"one\":true"));
     assertTrue(serialized.contains("\"two\":\"field\""));
     assertTrue(serialized.contains("\"three\":\"2015-11-12T22:33:44.123456789Z\"")); // UTC
+    assertTrue(serialized.contains("\"four\":\"2015-11-12T22:33:44Z\"")); // UTC
   }
 }
