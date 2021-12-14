@@ -6,16 +6,19 @@
 package org.openx.data.jsonserde.objectinspector.primitive;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
-import java.util.Date;
+import java.time.format.ResolverStyle;
+import java.time.temporal.ChronoField;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.regex.Pattern;
+
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+import static java.time.format.ResolverStyle.STRICT;
 
 /**
  *
@@ -27,10 +30,36 @@ public final class ParsePrimitiveUtils {
         throw new InstantiationError("This class must not be instantiated.");
     }
 
-    // timestamps are expected to be in UTC
-    public final static ThreadLocalSimpleDateFormat UTC_FORMAT = new ThreadLocalSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("UTC"));
-    public final static ThreadLocalSimpleDateFormat OFFSET_FORMAT = new ThreadLocalSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", TimeZone.getTimeZone("UTC"));
-    public final static ThreadLocalSimpleDateFormat NON_UTC_FORMAT = new ThreadLocalSimpleDateFormat("yyyy-MM-dd HH:mm:ss", TimeZone.getTimeZone("UTC"));
+    private static final DateTimeFormatter NO_COLON_OFFSET_FORMAT;
+    private static final DateTimeFormatter LOCAL_PRINT_FORMATTER;
+    private static final DateTimeFormatter UTC_PRINT_FORMATTER;
+
+    static {
+        DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+        // Date part
+        builder.append(ISO_LOCAL_DATE_TIME);
+        builder.appendOffset("+HHMM", "Z");
+        NO_COLON_OFFSET_FORMAT = builder.toFormatter();
+    }
+
+    static {
+        DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+        // Date and time parts
+        builder.append(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        // Fractional part
+        builder.optionalStart().appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true).optionalEnd();
+        LOCAL_PRINT_FORMATTER = builder.toFormatter();
+    }
+
+    static {
+        DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+        // Date and time parts
+        builder.append(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+        // Fractional part
+        builder.optionalStart().appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true).optionalEnd();
+        builder.appendLiteral('Z');
+        UTC_PRINT_FORMATTER = builder.toFormatter();
+    }
 
     static Pattern hasTZOffset = Pattern.compile(".+(\\+|-)\\d{2}:?\\d{2}$");
 
@@ -71,11 +100,11 @@ public final class ParsePrimitiveUtils {
     }
 
     public static String serializeAsUTC(Timestamp ts) {
-        return UTC_FORMAT.format(ts.getTime());
+        return UTC_PRINT_FORMATTER.format(ts.toInstant());
     }
 
     public static String serializeAsUTC(org.apache.hadoop.hive.common.type.Timestamp ts) {
-        return UTC_FORMAT.format(ts.toEpochMilli());
+        return ts.format(UTC_PRINT_FORMATTER);
     }
 
     public static org.apache.hadoop.hive.common.type.Timestamp parseTimestamp(String s, List<DateTimeFormatter> timestampFormaters) {
@@ -122,22 +151,23 @@ public final class ParsePrimitiveUtils {
      * @return
      */
     public static String nonUTCFormat(String s) {
-        Date parsed = null;
+        ZonedDateTime parsed = null;
         try {
-            if(s.endsWith("Z")) { // 003Z
-                parsed = UTC_FORMAT.parse(s);
-            } else if ( hasTZOffset.matcher(s).matches()) {
-                parsed = OFFSET_FORMAT.parse(s); // +0600 or -06:00
+            if (s.endsWith("Z") || hasTZOffset.matcher(s).matches()) {
+                if (s.charAt(s.length() - 3) == ':') {
+                    parsed = ZonedDateTime.parse(s, ISO_OFFSET_DATE_TIME); // -06:00
+                } else {
+                    parsed = ZonedDateTime.parse(s, NO_COLON_OFFSET_FORMAT); // -0600
+                }
             } else {
                 return s;
             }
-
-        } catch (ParseException e) {
+        } catch (DateTimeParseException e) {
                 e.printStackTrace();
         }
 
-        if(parsed!=null) {
-            return NON_UTC_FORMAT.format(parsed);
+        if (parsed != null) {
+            return LOCAL_PRINT_FORMATTER.format(parsed.withZoneSameInstant(ZoneId.of("UTC")));
         } else {
             return s;
         }

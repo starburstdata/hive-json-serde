@@ -108,6 +108,51 @@ public class JsonSerDeTimeStampTest {
   }
 
   @Test
+  public void testTimestampDeSerializeNanosecondsWithPlusHoursWithColon() throws Exception {
+    // Test that timestamp object can be deserialized
+    Writable w = new Text("{\"one\":true,\"five\":\"2017-08-17T10:46:04.123456789+03:00\"}");
+
+    JSONObject result = (JSONObject) instance.deserialize(w);
+
+    StructObjectInspector soi = (StructObjectInspector) instance.getObjectInspector();
+
+    JavaStringTimestampObjectInspector jstOi = (JavaStringTimestampObjectInspector)
+            soi.getStructFieldRef("five").getFieldObjectInspector();
+    assertEquals(org.apache.hadoop.hive.common.type.Timestamp.valueOf("2017-08-17 07:46:04.123456789"),
+            jstOi.getPrimitiveJavaObject(result.get("five")));
+  }
+
+  @Test
+  public void testTimestampDeSerializeNanosecondsWithPlusHours() throws Exception {
+    // Test that timestamp object can be deserialized
+    Writable w = new Text("{\"one\":true,\"five\":\"2017-08-17T10:46:04.123456789+0300\"}");
+
+    JSONObject result = (JSONObject) instance.deserialize(w);
+
+    StructObjectInspector soi = (StructObjectInspector) instance.getObjectInspector();
+
+    JavaStringTimestampObjectInspector jstOi = (JavaStringTimestampObjectInspector)
+            soi.getStructFieldRef("five").getFieldObjectInspector();
+    assertEquals(org.apache.hadoop.hive.common.type.Timestamp.valueOf("2017-08-17 07:46:04.123456789"),
+            jstOi.getPrimitiveJavaObject(result.get("five")));
+  }
+
+  @Test
+  public void testTimestampDeSerializeWithPlusHoursWithColon() throws Exception {
+    // Test that timestamp object can be deserialized
+    Writable w = new Text("{\"one\":true,\"five\":\"2017-08-17T10:46:04+03:00\"}");
+
+    JSONObject result = (JSONObject) instance.deserialize(w);
+
+    StructObjectInspector soi = (StructObjectInspector) instance.getObjectInspector();
+
+    JavaStringTimestampObjectInspector jstOi = (JavaStringTimestampObjectInspector)
+            soi.getStructFieldRef("five").getFieldObjectInspector();
+    assertEquals(org.apache.hadoop.hive.common.type.Timestamp.valueOf("2017-08-17 07:46:04"),
+            jstOi.getPrimitiveJavaObject(result.get("five")));
+  }
+
+  @Test
   public void testTimestampDeSerializeWithPlusHours() throws Exception {
     // Test that timestamp object can be deserialized
     Writable w = new Text("{\"one\":true,\"five\":\"2017-08-17T10:46:04+0300\"}");
@@ -118,11 +163,11 @@ public class JsonSerDeTimeStampTest {
 
     JavaStringTimestampObjectInspector jstOi = (JavaStringTimestampObjectInspector)
             soi.getStructFieldRef("five").getFieldObjectInspector();
-    assertEquals(org.apache.hadoop.hive.common.type.Timestamp.valueOf("2017-08-17 07:46:04.0"),
+    assertEquals(org.apache.hadoop.hive.common.type.Timestamp.valueOf("2017-08-17 07:46:04"),
             jstOi.getPrimitiveJavaObject(result.get("five")));
   }
-  
-   @Test
+
+  @Test
   public void testTimestampDeSerializeNumericTimestamp() throws Exception {
     // Test that timestamp object can be deserialized
     Writable w = new Text("{\"one\":true,\"five\":1367801925}");
@@ -132,11 +177,11 @@ public class JsonSerDeTimeStampTest {
     JavaStringTimestampObjectInspector jstOi = (JavaStringTimestampObjectInspector) 
             soi.getStructFieldRef("five").getFieldObjectInspector();
     assertEquals(getDate("2013-05-06 00:58:45" ),
-            jstOi.getPrimitiveJavaObject(result.get("five"))   );
+            jstOi.getPrimitiveJavaObject(result.get("five")));
   }
 
   @Test
-  public void testTimestampDeSerializeNumericTimestampWithNanoseconds() throws Exception {
+  public void testTimestampDeSerializeFloatingPointTimestampWithMilliseconds() throws Exception {
     // Test that timestamp object can be deserialized
     Writable w = new Text("{\"one\":true,\"five\":1367801925.123}");
 
@@ -145,11 +190,11 @@ public class JsonSerDeTimeStampTest {
     JavaStringTimestampObjectInspector jstOi = (JavaStringTimestampObjectInspector) 
             soi.getStructFieldRef("five").getFieldObjectInspector();
     assertEquals(getDate("2013-05-06 00:58:45.123"),
-            jstOi.getPrimitiveJavaObject(result.get("five")) );
+            jstOi.getPrimitiveJavaObject(result.get("five")));
   }
 
   @Test
-  public void testTimestampDeSerializeNumericTimestampWithMilliseconds() throws Exception {
+  public void testTimestampDeSerializeLongTimestampWithMilliseconds() throws Exception {
     // Test that timestamp object can be deserialized
     Writable w = new Text("{\"one\":true,\"five\":1367801925123}");
 
@@ -225,8 +270,8 @@ public class JsonSerDeTimeStampTest {
     JsonSerDe serde = new JsonSerDe();
     Configuration conf = null;
     Properties tbl = new Properties();
-    tbl.setProperty(serdeConstants.LIST_COLUMNS, "one,two,three");
-    tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "boolean,string,timestamp"); // one timestamp field
+    tbl.setProperty(serdeConstants.LIST_COLUMNS, "one,two,three,four");
+    tbl.setProperty(serdeConstants.LIST_COLUMN_TYPES, "boolean,string,timestamp,timestamp"); // two timestamp fields
     serde.initialize(conf, tbl);
 
     ArrayList<Object> row = new ArrayList<Object>(3);
@@ -249,8 +294,12 @@ public class JsonSerDeTimeStampTest {
     cal.set(2015,10,12,22,33,44); // month is zero-based!
 
     // see http://docs.oracle.com/javase/7/docs/api/java/util/Date.html#UTC(int,%20int,%20int,%20int,%20int,%20int)
-    row.add(org.apache.hadoop.hive.common.type.Timestamp.ofEpochMilli(cal.getTime().getTime()));
+    row.add(org.apache.hadoop.hive.common.type.Timestamp.ofEpochMilli(cal.getTime().getTime(), 123_456_789));
     fieldNames.add("three");
+    lOi.add(PrimitiveObjectInspectorFactory.javaTimestampObjectInspector);
+
+    row.add(org.apache.hadoop.hive.common.type.Timestamp.ofEpochMilli(cal.getTime().getTime(), 0));
+    fieldNames.add("four");
     lOi.add(PrimitiveObjectInspectorFactory.javaTimestampObjectInspector);
 
     StructObjectInspector soi = ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, lOi);
@@ -264,6 +313,7 @@ public class JsonSerDeTimeStampTest {
     // one by one
     assertTrue(serialized.contains("\"one\":true"));
     assertTrue(serialized.contains("\"two\":\"field\""));
-    assertTrue(serialized.contains("\"three\":\"2015-11-12T22:33:44Z\"")); // UTC
+    assertTrue(serialized.contains("\"three\":\"2015-11-12T22:33:44.123456789Z\"")); // UTC
+    assertTrue(serialized.contains("\"four\":\"2015-11-12T22:33:44Z\"")); // UTC
   }
 }
