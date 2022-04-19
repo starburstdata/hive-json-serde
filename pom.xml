@@ -98,7 +98,7 @@
         <!-- Starburst snapshot and release repositories -->
         <repository>
             <id>starburstdata.snapshots</id>
-            <url>https://maven.starburstdata.net/starburstdata-artifacts/snapshots</url>
+            <url>https://starburstdata-sep-cicd-843985043183.d.codeartifact.us-east-2.amazonaws.com/maven/snapshots</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -108,7 +108,7 @@
         </repository>
         <repository>
             <id>starburstdata.releases</id>
-            <url>https://maven.starburstdata.net/starburstdata-artifacts/releases</url>
+            <url>https://starburstdata-sep-cicd-843985043183.d.codeartifact.us-east-2.amazonaws.com/maven/releases</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -251,11 +251,11 @@
     <distributionManagement>
         <snapshotRepository>
             <id>starburstdata.snapshots</id>
-            <url>https://maven.starburstdata.net/starburstdata-artifacts/snapshots</url>
+            <url>https://starburstdata-sep-cicd-843985043183.d.codeartifact.us-east-2.amazonaws.com/maven/snapshots</url>
         </snapshotRepository>
         <repository>
             <id>starburstdata.releases</id>
-            <url>https://maven.starburstdata.net/starburstdata-artifacts/releases</url>
+            <url>https://starburstdata-sep-cicd-843985043183.d.codeartifact.us-east-2.amazonaws.com/maven/releases</url>
         </repository>
     </distributionManagement>
 </project>
