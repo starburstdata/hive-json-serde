@@ -3,7 +3,7 @@
         <!-- Starburst Maven Snapshot Repository -->
         <server>
             <id>starburstdata.snapshots</id>
-            <username>maven</username>
+            <username>${env.mavenUser}</username>
             <password>${env.mavenCredentials}</password>
             <configuration>
                 <httpConfiguration>
@@ -17,7 +17,7 @@
         <!-- Starburst Maven Release Repository -->
         <server>
             <id>starburstdata.releases</id>
-            <username>maven</username>
+            <username>${env.mavenUser}</username>
             <password>${env.mavenCredentials}</password>
             <configuration>
                 <httpConfiguration>
