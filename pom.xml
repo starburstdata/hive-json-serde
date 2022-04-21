@@ -31,7 +31,7 @@
         <hadoop.dependency>hadoop-common</hadoop.dependency>
 
         <!-- cdh7 versions -->
-        <cdh7.version>7.2.0.0-237</cdh7.version>
+        <cdh7.version>7.2.14.0-149</cdh7.version>
         <cdh7.hive.version>3.1.3000.${cdh7.version}</cdh7.hive.version>
         <cdh7.hadoop.version>3.1.1.${cdh7.version}</cdh7.hadoop.version>
         <!-- hdp3 versions -->
