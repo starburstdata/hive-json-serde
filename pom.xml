@@ -7,12 +7,12 @@
     <packaging>pom</packaging>
 
     <name>openx-json-serde</name>
-    <url>https://github.com/starburstdata/Hive-JSON-Serde-private</url>
+    <url>https://github.com/starburstdata/hive-json-serde</url>
     <scm>
         <!-- Replace the connection below with your project connection -->
-        <connection>scm:git:git@github.com:starburstdata/Hive-JSON-Serde-private.git</connection>
-        <developerConnection>scm:git:git@github.com:starburstdata/Hive-JSON-Serde-private.git</developerConnection>
-        <url>scm:git:git@github.com:starburstdata/Hive-JSON-Serde-private.git</url>
+        <connection>scm:git:git@github.com:starburstdata/hive-json-serde.git</connection>
+        <developerConnection>scm:git:git@github.com:starburstdata/hive-json-serde.git</developerConnection>
+        <url>scm:git:git@github.com:starburstdata/hive-json-serde.git</url>
 
         <tag>HEAD</tag>
     </scm>
