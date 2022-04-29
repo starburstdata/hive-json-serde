@@ -1,7 +1,7 @@
 package org.openx.data.jsonserde;
 
-import com.starburstdata.openjson.JSONException;
-import com.starburstdata.openjson.JSONObject;
+import io.starburst.openjson.JSONException;
+import io.starburst.openjson.JSONObject;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.ql.udf.UDFJson;
 import org.apache.hadoop.hive.serde.serdeConstants;

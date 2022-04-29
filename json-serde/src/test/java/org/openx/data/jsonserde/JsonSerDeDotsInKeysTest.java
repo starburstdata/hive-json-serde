@@ -1,6 +1,6 @@
 package org.openx.data.jsonserde;
 
-import com.starburstdata.openjson.JSONObject;
+import io.starburst.openjson.JSONObject;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.serde.serdeConstants;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;

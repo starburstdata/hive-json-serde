@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.starburstdata.openjson;
+package io.starburst.openjson;
 
 // Note: this class was written without inspecting the non-free org.json sourcecode.
 

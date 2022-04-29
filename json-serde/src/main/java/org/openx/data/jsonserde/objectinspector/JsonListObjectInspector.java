@@ -12,9 +12,9 @@
 
 package org.openx.data.jsonserde.objectinspector;
 
-import com.starburstdata.openjson.JSONArray;
-import com.starburstdata.openjson.JSONException;
-import com.starburstdata.openjson.JSONObject;
+import io.starburst.openjson.JSONArray;
+import io.starburst.openjson.JSONException;
+import io.starburst.openjson.JSONObject;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StandardListObjectInspector;
 

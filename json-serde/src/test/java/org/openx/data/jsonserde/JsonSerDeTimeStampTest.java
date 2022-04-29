@@ -13,9 +13,8 @@
 
 package org.openx.data.jsonserde;
 
-import com.google.common.collect.ImmutableList;
-import com.starburstdata.openjson.JSONException;
-import com.starburstdata.openjson.JSONObject;
+import io.starburst.openjson.JSONException;
+import io.starburst.openjson.JSONObject;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.serde.serdeConstants;
 import org.apache.hadoop.hive.serde2.SerDeException;
@@ -31,7 +30,6 @@ import org.openx.data.jsonserde.objectinspector.primitive.JavaStringTimestampObj
 import org.openx.data.jsonserde.objectinspector.primitive.ParsePrimitiveUtils;
 
 import java.text.ParseException;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
