@@ -95,7 +95,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.starburstdata.openjson</groupId>
+            <groupId>io.starburst.openjson</groupId>
             <artifactId>openjson</artifactId>
             <version>${openjson.version}</version>
             <scope>compile</scope>

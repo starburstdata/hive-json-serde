@@ -12,8 +12,8 @@
 
 package org.openx.data.jsonserde.objectinspector;
 
-import com.starburstdata.openjson.JSONException;
-import com.starburstdata.openjson.JSONObject;
+import io.starburst.openjson.JSONException;
+import io.starburst.openjson.JSONObject;
 
 import java.util.Collection;
 import java.util.HashMap;

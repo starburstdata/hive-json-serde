@@ -1,4 +1,4 @@
-package com.starburstdata.openjson;
+package io.starburst.openjson;
 
 /**
  * Class to test the function hack
