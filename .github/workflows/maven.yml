@@ -10,7 +10,6 @@ on:
     branches: [ develop ]
 
 env:
-  MAVEN_CONFIG: "-s settings.xml"
   mavenCredentials: ${{ secrets.mavenCredentials }}
 
 jobs:
