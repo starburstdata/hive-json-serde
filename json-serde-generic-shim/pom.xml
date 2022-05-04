@@ -10,10 +10,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.starburst.openx.data</groupId>
-    <artifactId>json-serde-hdp3-shim</artifactId>
+    <artifactId>json-serde-generic-shim</artifactId>
     <packaging>jar</packaging>
 
-    <name>json-hdp3-shim</name>
+    <name>json-generic-shim</name>
 
     <build>
         <plugins>
@@ -34,28 +34,23 @@
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-serde</artifactId>
-            <version>${hdp3.hive.version}</version>
+            <version>${generic.hive.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-exec</artifactId>
-            <version>${hdp3.hive.version}</version>
+            <version>${generic.hive.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>${hadoop.dependency}</artifactId>
-            <version>${hdp3.hadoop.version}</version>
+            <version>${generic.hadoop.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>HortonWorks</id>
-            <name>HortonWorks Maven Repo</name>
-            <url>https://repo.hortonworks.com/content/repositories/releases/</url>
-        </repository>
-    </repositories>
 </project>
+
+
+

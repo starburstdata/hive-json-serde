@@ -38,6 +38,9 @@
         <openjson.version>1.8-e.9-SNAPSHOT</openjson.version>
         <hadoop.dependency>hadoop-common</hadoop.dependency>
 
+        <!-- generic versions -->
+        <generic.hive.version>3.1.3</generic.hive.version>
+        <generic.hadoop.version>3.3.2</generic.hadoop.version>
         <!-- cdh7 versions -->
         <cdh7.version>7.2.14.0-149</cdh7.version>
         <cdh7.hive.version>3.1.3000.${cdh7.version}</cdh7.hive.version>
@@ -50,9 +53,24 @@
 
     <profiles>
         <profile>
-            <id>cdh7</id>
+            <id>generic</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>json-serde-generic-shim</module>
+            </modules>
+            <properties>
+                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+                <serde.shim>json-serde-generic-shim</serde.shim>
+                <hive.version>${generic.hive.version}</hive.version>
+                <hadoop.version>${generic.hadoop.version}</hadoop.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>cdh7</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <modules>
                 <module>json-serde-cdh7-shim</module>
@@ -60,10 +78,8 @@
             <properties>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
                 <serde.shim>json-serde-cdh7-shim</serde.shim>
-                <cdh.version>${cdh7.version}</cdh.version>
-                <cdh.hive.version>${cdh7.hive.version}</cdh.hive.version>
-                <cdh.hadoop.version>${cdh7.hadoop.version}</cdh.hadoop.version>
-                <cdh.shim>cdh7</cdh.shim>
+                <hive.version>${cdh7.hive.version}</hive.version>
+                <hadoop.version>${cdh7.hadoop.version}</hadoop.version>
             </properties>
         </profile>
         <profile>
@@ -77,10 +93,8 @@
             <properties>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
                 <serde.shim>json-serde-hdp3-shim</serde.shim>
-                <cdh.version>${hdp3.version}</cdh.version>
-                <cdh.hive.version>${hdp3.hive.version}</cdh.hive.version>
-                <cdh.hadoop.version>${hdp3.hadoop.version}</cdh.hadoop.version>
-                <cdh.shim>hdp3</cdh.shim>
+                <hive.version>${hdp3.hive.version}</hive.version>
+                <hadoop.version>${hdp3.hadoop.version}</hadoop.version>
             </properties>
         </profile>
     </profiles>
@@ -92,17 +106,6 @@
     </modules>
 
     <repositories>
-        <repository>
-            <id>Cloudera</id>
-            <name>Cloudera Maven Repo</name>
-            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
-        </repository>
-        <repository>
-            <id>HortonWorks</id>
-            <name>HortonWorks Maven Repo</name>
-            <url>https://repo.hortonworks.com/content/repositories/releases/</url>
-        </repository>
-
         <repository>
             <id>ossrh.snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
