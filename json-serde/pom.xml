@@ -14,6 +14,10 @@
 
     <name>json-serde-main</name>
 
+    <properties>
+        <main-class>org.openx.data.jsonserde.JsonSerDe</main-class>
+        <shadeBase>io.starburst.\$internal</shadeBase>
+    </properties>
 
     <build>
         <!-- wagon-ssh-external extension is necessary for deploying with scpexe -->
@@ -43,29 +47,353 @@
                     <noDeploy>true</noDeploy>
                 </configuration>
             </plugin>
-
-            <!-- Assembly Plugin                              -->
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <archive>
-                        <manifest>
-
-                        </manifest>
-                    </archive>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <minimizeJar>true</minimizeJar>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.antlr</pattern>
+                                    <shadedPattern>${shadeBase}.org.antlr</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.checkerframework</pattern>
+                                    <shadedPattern>${shadeBase}.org.checkerframework</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.ow2.asm</pattern>
+                                    <shadedPattern>${shadeBase}.org.ow2.asm</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>joda-time</pattern>
+                                    <shadedPattern>${shadeBase}.joda-time</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.joda.time</pattern>
+                                    <shadedPattern>${shadeBase}.org.joda.time</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>net.minidev</pattern>
+                                    <shadedPattern>${shadeBase}.net.minidev</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google.protobuf</pattern>
+                                    <shadedPattern>${shadeBase}.com.google.protobuf</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>google.protobuf</pattern>
+                                    <shadedPattern>${shadeBase}.google.protobuf</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>jline</pattern>
+                                    <shadedPattern>${shadeBase}.jline</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>commons-cli</pattern>
+                                    <shadedPattern>${shadeBase}.commons-cli</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.yahoo.datasketches</pattern>
+                                    <shadedPattern>${shadeBase}.com.yahoo.datasketches</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.hamcrest</pattern>
+                                    <shadedPattern>${shadeBase}.org.hamcrest</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.esri.geometry</pattern>
+                                    <shadedPattern>${shadeBase}.com.esri.geometry</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>de.ruedigermoeller</pattern>
+                                    <shadedPattern>${shadeBase}.de.ruedigermoeller</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google.re2j</pattern>
+                                    <shadedPattern>${shadeBase}.com.google.re2j</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google.common</pattern>
+                                    <shadedPattern>${shadeBase}.com.google.common</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google.guava</pattern>
+                                    <shadedPattern>${shadeBase}.com.google.guava</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.github.stephenc.jcip</pattern>
+                                    <shadedPattern>${shadeBase}.com.github.stephenc.jcip</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.tdunning</pattern>
+                                    <shadedPattern>${shadeBase}.com.tdunning</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>io.dropwizard.metrics</pattern>
+                                    <shadedPattern>${shadeBase}.io.dropwizard.metrics</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax</pattern>
+                                    <shadedPattern>${shadeBase}.javax</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.cedarsoftware</pattern>
+                                    <shadedPattern>${shadeBase}.com.cedarsoftware</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google.inject.extensions</pattern>
+                                    <shadedPattern>${shadeBase}.com.google.inject.extensions</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>io.airlift</pattern>
+                                    <shadedPattern>${shadeBase}.io.airlift</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>stax</pattern>
+                                    <shadedPattern>${shadeBase}.stax</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>commons-io</pattern>
+                                    <shadedPattern>${shadeBase}.commons-io</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google.inject</pattern>
+                                    <shadedPattern>${shadeBase}.com.google.inject</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>jersey.repackaged</pattern>
+                                    <shadedPattern>${shadeBase}.jersey.repackaged</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.sun</pattern>
+                                    <shadedPattern>${shadeBase}.com.sun</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>net.sf.opencsv</pattern>
+                                    <shadedPattern>${shadeBase}.net.sf.opencsv</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.codehaus</pattern>
+                                    <shadedPattern>${shadeBase}.org.codehaus</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javolution</pattern>
+                                    <shadedPattern>${shadeBase}.javolution</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.nimbusds</pattern>
+                                    <shadedPattern>${shadeBase}.com.nimbusds</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.vlkan</pattern>
+                                    <shadedPattern>${shadeBase}.com.vlkan</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.carrotsearch</pattern>
+                                    <shadedPattern>${shadeBase}.com.carrotsearch</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google.gson</pattern>
+                                    <shadedPattern>${shadeBase}.com.google.gson</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google.code.gson</pattern>
+                                    <shadedPattern>${shadeBase}.com.google.code.gson</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>io.netty</pattern>
+                                    <shadedPattern>${shadeBase}.io.netty</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>log4j</pattern>
+                                    <shadedPattern>${shadeBase}.log4j</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.github.joshelser</pattern>
+                                    <shadedPattern>${shadeBase}.com.github.joshelser</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.fasterxml.jackson</pattern>
+                                    <shadedPattern>${shadeBase}.com.fasterxml.jackson</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.ctc</pattern>
+                                    <shadedPattern>${shadeBase}.com.ctc</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.esri</pattern>
+                                    <shadedPattern>${shadeBase}.com.esri</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>fr.jayasoft</pattern>
+                                    <shadedPattern>${shadeBase}.fr.jayasoft</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.eclipse.jetty</pattern>
+                                    <shadedPattern>${shadeBase}.org.eclipse.jetty</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>dnsjava</pattern>
+                                    <shadedPattern>${shadeBase}.dnsjava</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>commons-pool</pattern>
+                                    <shadedPattern>${shadeBase}.commons-pool</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.microsoft.sqlserver</pattern>
+                                    <shadedPattern>${shadeBase}.com.microsoft.sqlserver</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.jcraft</pattern>
+                                    <shadedPattern>${shadeBase}.com.jcraft</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>net.sf.jpam</pattern>
+                                    <shadedPattern>${shadeBase}.net.sf.jpam</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>jakarta.activation</pattern>
+                                    <shadedPattern>${shadeBase}.jakarta.activation</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>commons-net</pattern>
+                                    <shadedPattern>${shadeBase}.commons-net</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google.code.findbugs</pattern>
+                                    <shadedPattern>${shadeBase}.com.google.code.findbugs</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.datanucleus</pattern>
+                                    <shadedPattern>${shadeBase}.org.datanucleus</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>commons-beanutils</pattern>
+                                    <shadedPattern>${shadeBase}.commons-beanutils</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.tukaani</pattern>
+                                    <shadedPattern>${shadeBase}.org.tukaani</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>commons-daemon</pattern>
+                                    <shadedPattern>${shadeBase}.commons-daemon</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.slf4j</pattern>
+                                    <shadedPattern>${shadeBase}.org.slf4j</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>commons-collections</pattern>
+                                    <shadedPattern>${shadeBase}.commons-collections</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google.j2objc</pattern>
+                                    <shadedPattern>${shadeBase}.com.google.j2objc</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>commons-logging</pattern>
+                                    <shadedPattern>${shadeBase}.commons-logging</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.fasterxml.woodstox</pattern>
+                                    <shadedPattern>${shadeBase}.com.fasterxml.woodstox</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>commons-codec</pattern>
+                                    <shadedPattern>${shadeBase}.commons-codec</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>aopalliance</pattern>
+                                    <shadedPattern>${shadeBase}.aopalliance</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.ehcache</pattern>
+                                    <shadedPattern>${shadeBase}.org.ehcache</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>avro.shaded</pattern>
+                                    <shadedPattern>${shadeBase}.avro.shaded</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.zaxxer</pattern>
+                                    <shadedPattern>${shadeBase}.com.zaxxer</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.xerial.snappy</pattern>
+                                    <shadedPattern>${shadeBase}.org.xerial.snappy</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>commons-lang</pattern>
+                                    <shadedPattern>${shadeBase}.commons-lang</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.fusesource</pattern>
+                                    <shadedPattern>${shadeBase}.org.fusesource</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.jboss</pattern>
+                                    <shadedPattern>${shadeBase}.org.jboss</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.xbill</pattern>
+                                    <shadedPattern>${shadeBase}.org.xbill</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>junit</pattern>
+                                    <shadedPattern>${shadeBase}.junit</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.thoughtworks.paranamer</pattern>
+                                    <shadedPattern>${shadeBase}.com.thoughtworks.paranamer</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>commons-dbcp</pattern>
+                                    <shadedPattern>${shadeBase}.commons-dbcp</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <filters>
+                                <filter>
+                                    <!-- filter out signature files from signed dependencies -->
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>org.apache.logging.log4j:log4j-core</artifact>
+                                    <includes>
+                                        <include>org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor</include>
+                                    </includes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Main-Class>${main-class}</Main-Class>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>se.bjurr.gitchangelog</groupId>
                 <artifactId>git-changelog-maven-plugin</artifactId>
@@ -105,20 +433,20 @@
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-serde</artifactId>
             <version>${hive.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-exec</artifactId>
             <version>${hive.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>${hadoop.dependency}</artifactId>
             <version>${hadoop.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>
