@@ -102,7 +102,6 @@
     <modules>
         <module>json</module>
         <module>json-serde</module>
-        <module>json-udf</module>
     </modules>
 
     <repositories>
