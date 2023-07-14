@@ -162,8 +162,9 @@ public final class ParsePrimitiveUtils {
             } else {
                 return s;
             }
-        } catch (DateTimeParseException e) {
-                e.printStackTrace();
+        } catch (DateTimeParseException ignored) {
+            // disable log flooding
+            // e.printStackTrace();
         }
 
         if (parsed != null) {
