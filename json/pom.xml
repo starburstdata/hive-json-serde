@@ -4,13 +4,13 @@
         <groupId>io.starburst.openx.data</groupId>
         <artifactId>json-serde-parent</artifactId>
         <relativePath>../pom.xml</relativePath>
-        <version>1.3.9-e.12-SNAPSHOT</version>
+        <version>1.3.9-e.12</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.starburst.openjson</groupId>
     <artifactId>openjson</artifactId>
-    <version>1.8-e.12-SNAPSHOT</version>
+    <version>1.8-e.12</version>
 
     <packaging>jar</packaging>
     <name>open-json</name>
