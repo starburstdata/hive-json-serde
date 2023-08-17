@@ -355,3 +355,46 @@ See [CHANGELOG](CHANGELOG.md) for details.
 
 Thanks to Douglas Crockford for the liberal license for his JSON library, and thanks to
 my employer OpenX and my boss Michael Lum for letting me open source the code.
+
+
+### Releasing
+
+This repository gets released to Maven Central.
+
+- This repository requires JDK 11 to release/test. Without that you might see
+  some tests fail when doing the release preventing you from being able to
+  release.
+- Make sure your `~/.m2/settings.xml` has an entry for `ossrh` server id.
+  ```xml
+  <settings>
+      <!-- ... -->
+      <servers>
+          <!-- Sonatype Maven Release Repository -->
+          <server>
+              <id>ossrh</id>
+              <username><!-- username for Maven Central --></username>
+              <password><!-- password for Maven Central --></password>
+          </server>
+      </servers>
+  </settings>
+  ```
+- Make sure you have a GPG keypair. See
+  https://central.sonatype.org/publish/requirements/gpg/ for more instructions.
+- Since the default branch of this repository cannot be pushed to you need to
+  execute Maven release like so:
+  ```sh
+  ./mvnw release:clean release:prepare -DpushChanges=false
+  ./mvnw release:perform -DlocalCheckout=true
+  ```
+- Once the above finishes follow the instructions at
+  https://central.sonatype.org/publish/release/ to release to OSSRH so that it
+  gets synced to Maven Central eventually. Note that this repository exists on
+  https://oss.sonatype.org and not https://s01.oss.sonatype.org yet.
+- After doing the "Release" in Sonatype create a new pull request with the 2
+  commits that got created locally.
+- Once the PR is merged tag the release commit using `git tag <tag>
+  <commit_sha>` where `commit_sha` is the commit with message like
+  `[maven-release-plugin] prepare release ...`.
+- If the release fails with "inappropriate ioctl for device" then execute
+  `export GPG_TTY=$(tty)` in the terminal where you are doing the release and
+  retry.
